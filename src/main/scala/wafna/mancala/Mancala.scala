@@ -81,7 +81,7 @@ object Mancala {
           doMove(stonesInHand - 1, newScore, side.opponent, nextPit)
         } else {
           pits(put) += 1
-          doMove(stonesInHand, score, side, nextPit)
+          doMove(stonesInHand - 1, score, side, nextPit)
         }
       }
     }
