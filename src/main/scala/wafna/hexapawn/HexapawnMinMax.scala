@@ -30,7 +30,7 @@ object HexapawnMinMax {
     override def pass(game: Hexapawn): Hexapawn =
       game.pass()
 
-    override def show(game: Hexapawn): String =
-      game.show()
+    override def show(game: Hexapawn): Option[String] =
+      Some(game.show())
   }
 }

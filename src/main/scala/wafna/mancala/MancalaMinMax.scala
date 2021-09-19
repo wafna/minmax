@@ -21,10 +21,13 @@ object MancalaMinMax {
       }
     }
 
-    override def moves(game: Mancala): Seq[Mancala] = game.nextMoves
+    override def moves(game: Mancala): Seq[Mancala] =
+      game.nextMoves
 
-    override def pass(game: Mancala): Mancala = game.pass
+    override def pass(game: Mancala): Mancala =
+      game.pass()
 
-    override def show(game: Mancala): String = game.show
+    override def show(game: Mancala): Option[String] =
+      Some(game.show())
   }
 }

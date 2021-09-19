@@ -10,7 +10,7 @@ class Mancala private[mancala] (val currentPlayer: Player, val score: Score, pit
 
   import Mancala.copyPits
 
-  def pass: Mancala = {
+  def pass(): Mancala = {
     require(nextMoves.isEmpty)
     new Mancala(currentPlayer.opponent, score, pits1, pits2)
   }
