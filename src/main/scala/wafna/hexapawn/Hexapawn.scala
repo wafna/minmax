@@ -11,13 +11,16 @@ class Hexapawn private[hexapawn] (
   spots: Hexapawn.Grid
 ) {
   import Hexapawn._
+
   @inline private def fromGrid(col: Int, row: Int): Int = col * rows + row
   def spot(col: Int, row: Int): Option[Player] = spots(fromGrid(col, row))
+
   private case class Params(goal: Int, delta: Int, moveBand: (Int, Int))
   private def params(p: Player): Params = p match {
     case P1 => Params(rows - 1, 1, (0, rows - 2))
     case P2 => Params(0, -1, (1, rows - 1))
   }
+
   lazy val winner: Option[Option[Player]] = {
     if (state == Drawn) {
       Some(None)
@@ -99,7 +102,29 @@ class Hexapawn private[hexapawn] (
         }
       }
     }
+  def show(): String = {
+    val s = new StringBuilder()
+    s.append(s"player = ${currentPlayer.show()}, state = ${state}, winner = ${winner}")
+    s.append("\n")
+    (0 until rows).foreach { urow =>
+      val row = rows - urow - 1
+      s.append(s"$row")
+      (0 until cols).foreach { col =>
+        s.append(" ")
+        s.append(spot(col, row) match {
+          case None    => " "
+          case Some(p) => p.show()
+        })
+      }
+      s.append("\n")
+    }
+    s.append(" ")
+    s.append((0 until cols).map(" " + _).mkString(""))
+    s.toString()
+    s.toString()
+  }
 }
+
 object Hexapawn {
 
   implicit class ShowPlayer(player: Player) {
@@ -127,30 +152,4 @@ object Hexapawn {
     new Hexapawn(P1, cols, rows, Open, spots)
   }
   type Grid = Array[Option[Player]]
-
-  def showFull(hexapawn: Hexapawn): String = {
-    val s = new StringBuilder()
-    s.append(s"player = ${hexapawn.currentPlayer.show()}, state = ${hexapawn.state}, winner = ${hexapawn.winner}")
-    s.append("\n")
-    s.append(showGrid(hexapawn))
-    s.toString()
-  }
-  def showGrid(hexapawn: Hexapawn): String = {
-    val s = new StringBuilder()
-    (0 until hexapawn.rows).foreach { urow =>
-      val row = hexapawn.rows - urow - 1
-      s.append(s"$row")
-      (0 until hexapawn.cols).foreach { col =>
-        s.append(" ")
-        s.append(hexapawn.spot(col, row) match {
-          case None    => " "
-          case Some(p) => p.show()
-        })
-      }
-      s.append("\n")
-    }
-    s.append(" ")
-    s.append((0 until hexapawn.cols).map(" " + _).mkString(""))
-    s.toString()
-  }
 }

@@ -3,7 +3,7 @@ package wafna.hexapawn
 import org.scalatest.TestSuite
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpecLike
-import wafna.hexapawn.Hexapawn.{Open, showFull}
+import wafna.hexapawn.Hexapawn.Open
 import wafna.util.Player
 import wafna.util.Player.{P1, P2}
 

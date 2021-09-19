@@ -1,7 +1,7 @@
 package wafna.hexapawn
 
 import org.slf4j.LoggerFactory
-import wafna.hexapawn.Hexapawn.{ShowPlayer, showGrid}
+import wafna.hexapawn.Hexapawn.ShowPlayer
 import wafna.hexapawn.HexapawnMinMax.HexapawnMinMax
 import wafna.minmax.MinMax
 import wafna.minmax.MinMax.Eval
@@ -25,7 +25,7 @@ object Arena {
           log.info(s"WINNER? ${game.winner}")
           game.winner
         case Some(move) =>
-          log.info(s"PLAYER ${move.game.currentPlayer.show()} MOVES\n${showGrid(move.game)}")
+          log.info(s"PLAYER ${move.game.currentPlayer.show()} MOVES\n${move.game.show()}")
           runPlayer(move.game, bots.tail)
       }
     }

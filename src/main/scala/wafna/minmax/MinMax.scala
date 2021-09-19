@@ -1,17 +1,15 @@
 package wafna.minmax
 
 import org.slf4j.LoggerFactory
+import wafna.util.Player
 
 import scala.annotation.tailrec
 
 /** Type class of MinMax games.
-  * @tparam G The type of the game.
-  * @tparam P The type of the player of the game.
   */
-trait MinMax[G, P] {
-  def currentPlayer(game: G): P
-  def maximize(game: G, player: P): Boolean
-  def evaluate(game: G, player: P): Int
+trait MinMax[G] {
+  def currentPlayer(game: G): Player
+  def evaluate(game: G, player: Player): Int
   def moves(game: G): Seq[G]
   def pass(game: G): G
   def show(game: G): String
@@ -30,7 +28,7 @@ object MinMax {
   /** Search the current game to the specified depth for the best move.
     * @return None if there are no moves, perhaps there's a winner?
     */
-  def search[G, P](game: G, maxDepth: Int)(implicit minMax: MinMax[G, P]): Option[Eval[G]] = {
+  def search[G](game: G, maxDepth: Int)(implicit minMax: MinMax[G]): Option[Eval[G]] = {
     require(0 < maxDepth, "maxDepth must be positive.")
     // This player is the player initiating the search, throughout.
     val currentPlayer = minMax.currentPlayer(game)
@@ -38,20 +36,22 @@ object MinMax {
       .moves(game)
       .foldLeft(Option.empty[Eval[G]]) { (best, move) =>
         // prune with the current best value.
-        val eval: Int = evaluate(game = move, currentPlayer: P, prune = best.map(_.eval), depth = maxDepth - 1)
+        val eval: Int = evaluate(game = move, currentPlayer: Player, prune = best.map(_.eval), depth = maxDepth - 1)
         // always maximizing at the top.
         selectBest(1, best, Eval(move, eval))
       }
   }
-  private def evaluate[G, P](game: G, currentPlayer: P, prune: Option[Int], depth: Int)(implicit
-    minMax: MinMax[G, P]
+  private def evaluate[G](game: G, currentPlayer: Player, prune: Option[Int], depth: Int)(implicit
+    minMax: MinMax[G]
   ): Int = {
     if (0 == depth) {
       val eval = minMax.evaluate(game, currentPlayer)
       log.debug(s"evaluate [$depth] eval=$eval\n${minMax.show(game)}")
       eval
     } else {
-      val mm = if (minMax.maximize(game, currentPlayer)) 1 else -1
+      // This flips the sense of inequalities used in finding best moves and pruning searches.
+      val mm = if (minMax.currentPlayer(game) == currentPlayer) 1 else -1
+
       log.debug(s"search [$depth] prune=${prune.getOrElse(" ")}\n${minMax.show(game)}")
       @tailrec
       def searchMoves(moves: Seq[G], best: Option[Eval[G]]): Int = moves match {

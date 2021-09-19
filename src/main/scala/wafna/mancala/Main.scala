@@ -1,7 +1,7 @@
-package wafna.hexapawn
+package wafna.mancala
 
 import org.slf4j.LoggerFactory
-import wafna.hexapawn.HexapawnMinMax._
+import wafna.mancala.MancalaMinMax._
 import wafna.minmax.MinMax
 import wafna.minmax.MinMax.Eval
 
@@ -9,8 +9,10 @@ object Main extends App {
 
   private val log = LoggerFactory.getLogger(getClass)
 
-  private val g0: Hexapawn = Hexapawn(3, 3)
-  // Arena.runMatch(g0, new Bot(6), new Bot(2))
+  implicit val mmx: MinMax[Mancala] = MancalaMinMax
+
+  private val g0: Mancala = Mancala(3, 3)
+  log.info(g0.show())
   MinMax.search(g0, 5) match {
     case None =>
       log.info(s"NOTHING")

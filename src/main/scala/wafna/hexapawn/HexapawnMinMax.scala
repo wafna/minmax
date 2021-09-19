@@ -5,14 +5,13 @@ import wafna.minmax.MinMax
 import wafna.util.Player
 
 object HexapawnMinMax {
-  type HexapawnMinMax = MinMax[Hexapawn, Player]
+
+  type HexapawnMinMax = MinMax[Hexapawn]
+
   implicit object HexapawnMinMaxTC extends HexapawnMinMax {
 
     override def currentPlayer(game: Hexapawn): Player =
       game.currentPlayer
-
-    override def maximize(game: Hexapawn, player: Player): Boolean =
-      player == game.currentPlayer
 
     override def evaluate(game: Hexapawn, player: Player): Int = {
       game.winner match {
@@ -32,8 +31,6 @@ object HexapawnMinMax {
       game.pass()
 
     override def show(game: Hexapawn): String =
-      s"""player: ${game.currentPlayer.show()}
-         |${Hexapawn.showGrid(game)}
-         |""".stripMargin
+      game.show()
   }
 }
