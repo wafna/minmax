@@ -21,7 +21,7 @@ object MinMax {
   /** A game plus its valuation relative to the player initiating the search. */
   final case class Eval[G](game: G, eval: Int)
   private def selectBest[G](mm: Int, best: Option[Eval[G]], maybe: Eval[G]): Option[Eval[G]] =
-    if (best.exists(b => mm * b.eval > mm * maybe.eval)) {
+    if (best.exists(mm * _.eval > mm * maybe.eval)) {
       best
     } else {
       Some(maybe)
