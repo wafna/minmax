@@ -9,10 +9,8 @@ object HexapawnMinMax {
   type HexapawnMinMax = MinMax[Hexapawn]
 
   implicit object HexapawnMinMaxTC extends HexapawnMinMax {
-
     override def currentPlayer(game: Hexapawn): Player =
       game.currentPlayer
-
     override def evaluate(game: Hexapawn, player: Player): Int = {
       game.winner match {
         case None => 0
@@ -23,14 +21,9 @@ object HexapawnMinMax {
           }
       }
     }
-
     override def moves(game: Hexapawn): Seq[Hexapawn] =
       game.nextMoves
-
     override def pass(game: Hexapawn): Hexapawn =
       game.pass()
-
-    override def show(game: Hexapawn): Option[String] =
-      Some(game.show())
   }
 }

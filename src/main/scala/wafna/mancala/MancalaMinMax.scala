@@ -9,10 +9,8 @@ object MancalaMinMax {
   type MancalaMinMax = MinMax[Mancala]
 
   implicit object MancalaMinMax extends MinMax[Mancala] {
-
     override def currentPlayer(game: Mancala): Player =
       game.currentPlayer
-
     override def evaluate(game: Mancala, player: Player): Int = {
       val score = game.score
       player match {
@@ -20,14 +18,9 @@ object MancalaMinMax {
         case P2 => score.p2 - score.p1
       }
     }
-
     override def moves(game: Mancala): Seq[Mancala] =
       game.nextMoves
-
     override def pass(game: Mancala): Mancala =
       game.pass()
-
-    override def show(game: Mancala): Option[String] =
-      Some(game.show())
   }
 }

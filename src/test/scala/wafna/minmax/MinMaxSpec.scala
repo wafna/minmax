@@ -60,7 +60,5 @@ object MinMaxSpec {
     override def evaluate(game: Game, player: util.Player): Int = game.eval
     override def moves(game: Game): Seq[Game] = game.moves.toSeq
     override def pass(game: Game): Game = ???
-    override def show(game: Game): Option[String] =
-      Some(s"game: id=${game.id}, p=${game.player}. eval=${game.eval}")
   }
 }
