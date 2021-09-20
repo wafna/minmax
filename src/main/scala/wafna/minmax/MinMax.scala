@@ -49,13 +49,13 @@ object MinMax {
     @inline def showGame(game: G): String = minMax.show(game).map("\n" + _).getOrElse("")
     if (0 == depth) {
       val eval = minMax.evaluate(game, currentPlayer)
-      log.debug(s"evaluate [$depth] eval=$eval\n${showGame(game)}")
+      log.debug(s"evaluate [$depth] eval=$eval${showGame(game)}")
       eval
     } else {
       // This flips the sense of inequalities used in finding best moves and pruning searches.
       val mm = if (minMax.currentPlayer(game) == currentPlayer) 1 else -1
 
-      log.debug(s"search [$depth] prune=${prune.getOrElse(" ")}\n${showGame(game)}")
+      log.debug(s"search [$depth] prune=${prune.getOrElse(" ")}${showGame(game)}")
       @tailrec
       def searchMoves(moves: Seq[G], best: Option[Eval[G]]): Int = moves match {
         case Nil =>
@@ -64,14 +64,14 @@ object MinMax {
             // So, the moving player passes.
             val pass: G = minMax.pass(game)
             val eval: Int = evaluate(pass, currentPlayer, best.map(_.eval), depth - 1)
-            log.debug(s"PASS depth=$depth, eval=$eval\n${showGame(pass)}")
+            log.debug(s"PASS depth=$depth, eval=$eval${showGame(pass)}")
             eval
           }
         case m :: ms =>
           val eval = evaluate(m, currentPlayer, best.map(_.eval), depth - 1)
-          log.debug(s"move [$depth] eval=$eval, best=${best.map(_.eval)}\n${showGame(m)}")
+          log.debug(s"move [$depth] eval=$eval, best=${best.map(_.eval)}${showGame(m)}")
           if (prune.exists(p => mm * p < mm * eval)) {
-            log.debug(s"PRUNED [$depth] prune=${prune.get}, eval=$eval\n${showGame(m)}")
+            log.debug(s"PRUNED [$depth] prune=${prune.get}, eval=$eval${showGame(m)}")
             eval
           } else {
             val b = selectBest(mm, best, Eval(m, eval))

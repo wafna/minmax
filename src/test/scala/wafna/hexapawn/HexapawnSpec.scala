@@ -1,13 +1,11 @@
 package wafna.hexapawn
 
-import org.scalatest.TestSuite
-import org.scalatest.matchers.should.Matchers
-import org.scalatest.wordspec.AnyWordSpecLike
+import wafna.TestBase
 import wafna.hexapawn.Hexapawn.Open
 import wafna.util.Player
 import wafna.util.Player.{P1, P2}
 
-class HexapawnSpec extends TestSuite with AnyWordSpecLike with Matchers {
+class HexapawnSpec extends TestBase {
   "A new 3x3" should {
     val (cols, rows) = (3, 3)
     val g0 = Hexapawn(rows, cols)
