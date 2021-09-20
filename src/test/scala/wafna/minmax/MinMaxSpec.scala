@@ -18,7 +18,7 @@ class MinMaxSpec extends TestBase {
       runTree(1)("1-2") {
         // format: off
         Game("0", None, P1, List(
-          Game("1-1", None, P2),
+          Game("1-1", Some(0), P2),
           Game("1-2", Some(1), P2),
           Game("1-3", Some(-1), P2)
         ))
@@ -43,8 +43,9 @@ class MinMaxSpec extends TestBase {
             Game("1-1-1", Some(-1), P1)
           )),
           Game("1-2", None, P2, List(
-            Game("1-2-1", Some(-2), P1),
-            Game("do not evaluate!", None, P1)
+            Game("1-2-1", Some(0), P1),
+            Game("triggers a prune", Some(-2), P1),
+            Game("pruned: do not evaluate!", None, P1)
           ))
         ))
         // format: on
