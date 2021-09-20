@@ -31,24 +31,24 @@ object MinMax {
   def search[G](game: G, maxDepth: Int)(implicit minMax: MinMax[G]): Option[Eval[G]] = {
     require(0 < maxDepth, "maxDepth must be positive.")
     // This player is the player initiating the search, throughout.
-    val currentPlayer = minMax.currentPlayer(game)
+    val searchingPlayer = minMax.currentPlayer(game)
     minMax
       .moves(game)
       .foldLeft(Option.empty[Eval[G]]) { (best, move) =>
         // prune with the current best value.
-        val eval: Int = evaluate(game = move, currentPlayer: Player, prune = best.map(_.eval), depth = maxDepth - 1)
+        val eval: Int = evaluate(game = move, searchingPlayer: Player, prune = best.map(_.eval), depth = maxDepth - 1)
         // always maximizing at the top.
         selectBest(1, best, Eval(move, eval))
       }
   }
-  private def evaluate[G](game: G, currentPlayer: Player, prune: Option[Int], depth: Int)(implicit
+  private def evaluate[G](game: G, searchingPlayer: Player, prune: Option[Int], depth: Int)(implicit
     minMax: MinMax[G]
   ): Int = {
     if (0 == depth) {
-      minMax.evaluate(game, currentPlayer)
+      minMax.evaluate(game, searchingPlayer)
     } else {
       // This flips the sense of inequalities used in finding best moves and pruning searches.
-      val mm = if (minMax.currentPlayer(game) == currentPlayer) 1 else -1
+      val mm = if (minMax.currentPlayer(game) == searchingPlayer) 1 else -1
 
       @tailrec
       def searchMoves(moves: Seq[G], best: Option[Eval[G]]): Int = moves match {
@@ -57,10 +57,10 @@ object MinMax {
             // If we have no moves and best is empty then we never had any moves.
             // So, the moving player passes.
             val pass: G = minMax.pass(game)
-            evaluate(pass, currentPlayer, best.map(_.eval), depth - 1)
+            evaluate(pass, searchingPlayer, best.map(_.eval), depth - 1)
           }
         case m :: ms =>
-          val eval = evaluate(m, currentPlayer, best.map(_.eval), depth - 1)
+          val eval = evaluate(m, searchingPlayer, best.map(_.eval), depth - 1)
           if (prune.exists(p => mm * p < mm * eval)) {
             eval
           } else {
