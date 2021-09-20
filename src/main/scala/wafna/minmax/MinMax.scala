@@ -11,6 +11,7 @@ trait MinMax[G] {
   def evaluate(game: G, player: Player): Int
   def moves(game: G): Seq[G]
   def pass(game: G): G
+  def winner(game: G): Option[Player]
 }
 
 object MinMax {

@@ -25,5 +25,7 @@ object HexapawnMinMax {
       game.nextMoves
     override def pass(game: Hexapawn): Hexapawn =
       game.pass()
+    override def winner(game: Hexapawn): Option[Player] =
+      game.winner.get
   }
 }

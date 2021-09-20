@@ -22,5 +22,8 @@ object MancalaMinMax {
       game.nextMoves
     override def pass(game: Mancala): Mancala =
       game.pass()
+
+    override def winner(game: Mancala): Option[Player] =
+      if (game.score.p1 > game.score.p2) Some(P1) else if (game.score.p1 < game.score.p2) Some(P2) else None
   }
 }

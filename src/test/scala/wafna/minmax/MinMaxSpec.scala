@@ -79,5 +79,6 @@ object MinMaxSpec {
       game.eval.getOrElse(sys.error(s"Illegal evaluation at game ${game.id}"))
     override def moves(game: Game): Seq[Game] = game.moves.toSeq
     override def pass(game: Game): Game = ???
+    override def winner(game: Game): Option[Player] = ???
   }
 }
