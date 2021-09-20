@@ -147,7 +147,7 @@ object Hexapawn {
     val spots: Array[Option[Player]] = Array.fill(cols * rows)(None)
     (0 until cols).foreach { col =>
       spots(col * rows) = Some(P1)
-      spots(col * rows + 2) = Some(P2)
+      spots((col + 1) * rows - 1) = Some(P2)
     }
     new Hexapawn(P1, cols, rows, Open, spots)
   }

@@ -23,6 +23,10 @@ Similar logic applies to the minimizer.
 This game comes from the great Martin Gardner as an example of a game so simple a machine for learning how to play it
 can be implemented with pencil and paper. See the [article](https://en.wikipedia.org/wiki/Hexapawn).
 
+The implementation here can be scaled to any number of paws (columns, must be at least 3), and rows (must be at least 3). 
+
+This game should end in a draw.
+
 ## Mancala
 
 This is an ancient [family of games](https://en.wikipedia.org/wiki/Mancala).
