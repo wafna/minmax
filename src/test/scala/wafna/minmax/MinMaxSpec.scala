@@ -51,6 +51,20 @@ class MinMaxSpec extends TestBase {
         // format: on
       }
     }
+    "evaluate early" in {
+      runTree(2)("1-2") {
+        // format: off
+        Game("1", None, P1, List(
+          Game("no children: evaluate immediately", Some(-3), P2),
+          Game("1-2", None, P2, List(
+            Game("1-2-1", Some(0), P1),
+            Game("triggers a prune", Some(-2), P1),
+            Game("pruned: do not evaluate!", None, P1)
+          ))
+        ))
+        // format: on
+      }
+    }
   }
 }
 
