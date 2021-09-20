@@ -10,12 +10,13 @@ the algorithm selects the move that will maximize or minimize, respectively, the
 
 While searching through a group of moves (which moves derive from an antecedent game state), the best valuation
 found thus far is used to prune subsequent searches.  
+
 Pruning occurs when the maximizer sees a valuation better than its prune value and, conversely, 
 when the minimizer sees a value worse than its prune value.
 In the first case, the maximizer aborts its search because it knows there's a minimizer above it
 (by dint of the fact that a prune value exists), which minimizer would never choose a move that would allow
-the maximizer to better than another choice would allow.
-The same logic applies to the minimizer.
+the maximizer to do better than another choice would allow.
+Similar logic applies to the minimizer.
 
 ## Hexapawn
 
