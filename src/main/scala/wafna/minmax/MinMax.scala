@@ -1,22 +1,29 @@
 package wafna.minmax
 
+import wafna.minmax.MinMax.State
 import wafna.util.Player
 
 import scala.annotation.tailrec
 
-/** Type class of MinMax games.
-  */
+/** Type class of MinMax games. */
 trait MinMax[G] {
   def currentPlayer(game: G): Player
   def evaluate(game: G, player: Player): Int
   def moves(game: G): Seq[G]
   def pass(game: G): G
-  def winner(game: G): Option[Player]
+  def state(game: G): State
 }
 
 object MinMax {
 
-  /** A game plus its valuation relative to the player initiating the search. */
+  sealed trait State
+  object State {
+    final case object Open extends State
+    final case object Drawn extends State
+    final case class Won(player: Player) extends State
+  }
+
+  /** A game plus its valuation relative to the searching player. */
   final case class Eval[G](game: G, eval: Int)
 
   private def selectBest[G](mm: Int, best: Option[Eval[G]], maybe: Eval[G]): Option[Eval[G]] =

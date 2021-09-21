@@ -7,7 +7,7 @@ class Hexapawn private[hexapawn] (
   val currentPlayer: Player,
   val cols: Int,
   val rows: Int,
-  val state: Hexapawn.State,
+  val state: Hexapawn.DrawCond,
   spots: Hexapawn.Grid
 ) {
   import Hexapawn._
@@ -22,19 +22,15 @@ class Hexapawn private[hexapawn] (
   }
 
   lazy val winner: Option[Option[Player]] = {
-    if (state == Drawn) {
+    if (state == DrawCond.Drawn) {
       Some(None)
     } else {
       def winCon(player: Player): Option[Option[Player]] = {
         val goal = params(player).goal
-        if (state == Drawn) {
-          Some(None)
+        if ((0 until cols).exists(col => spot(col, goal).contains(player))) {
+          Some(Some(player))
         } else {
-          if ((0 until cols).exists(col => spot(col, goal).contains(player))) {
-            Some(Some(player))
-          } else {
-            None
-          }
+          None
         }
       }
       // we assume the opponent just moved so we look for that player's win con, first, or not at all.
@@ -43,14 +39,14 @@ class Hexapawn private[hexapawn] (
   }
   def pass(): Hexapawn = {
     require(nextMoves.isEmpty)
-    if (state == Passed) {
-      new Hexapawn(currentPlayer, cols, rows, Drawn, spots)
+    if (state == DrawCond.Passed) {
+      new Hexapawn(currentPlayer, cols, rows, DrawCond.Drawn, spots)
     } else {
-      new Hexapawn(currentPlayer.opponent, cols, rows, Passed, spots)
+      new Hexapawn(currentPlayer.opponent, cols, rows, DrawCond.Passed, spots)
     }
   }
   lazy val nextMoves: List[Hexapawn] =
-    if (winner.isDefined || state == Drawn) {
+    if (winner.isDefined || state == DrawCond.Drawn) {
       Nil
     } else {
       val ps = params(currentPlayer)
@@ -66,7 +62,7 @@ class Hexapawn private[hexapawn] (
                 spots.copyToArray(newSpots)
                 newSpots(fromGrid(col, row + delta)) = Some(currentPlayer)
                 newSpots(grid) = None
-                Some(new Hexapawn(opp, cols, rows, Open, newSpots))
+                Some(new Hexapawn(opp, cols, rows, DrawCond.Open, newSpots))
               } else {
                 None
               }
@@ -78,7 +74,7 @@ class Hexapawn private[hexapawn] (
                 spots.copyToArray(newSpots)
                 newSpots(fromGrid(col - 1, row + delta)) = Some(currentPlayer)
                 newSpots(grid) = None
-                Some(new Hexapawn(opp, cols, rows, Open, newSpots))
+                Some(new Hexapawn(opp, cols, rows, DrawCond.Open, newSpots))
               } else {
                 None
               }
@@ -90,7 +86,7 @@ class Hexapawn private[hexapawn] (
                 spots.copyToArray(newSpots)
                 newSpots(fromGrid(col + 1, row + delta)) = Some(currentPlayer)
                 newSpots(grid) = None
-                Some(new Hexapawn(opp, cols, rows, Open, newSpots))
+                Some(new Hexapawn(opp, cols, rows, DrawCond.Open, newSpots))
               } else {
                 None
               }
@@ -104,7 +100,7 @@ class Hexapawn private[hexapawn] (
     }
   def show(): String = {
     val s = new StringBuilder()
-    s.append(s"player = ${currentPlayer.show()}, state = ${state}, winner = ${winner}")
+    s.append(s"player = ${currentPlayer.show()}, state = $state, winner = ${winner}")
     s.append("\n")
     (0 until rows).foreach { urow =>
       val row = rows - urow - 1
@@ -134,10 +130,12 @@ object Hexapawn {
     }
   }
 
-  sealed trait State
-  final case object Open extends State
-  final case object Passed extends State
-  final case object Drawn extends State
+  sealed trait DrawCond
+  object DrawCond {
+    final case object Open extends DrawCond
+    final case object Passed extends DrawCond
+    final case object Drawn extends DrawCond
+  }
 
   /** Creates the initial board with P1 and P2 filling the bottom (0) and top rows, respectively.
     */
@@ -149,7 +147,7 @@ object Hexapawn {
       spots(col * rows) = Some(P1)
       spots((col + 1) * rows - 1) = Some(P2)
     }
-    new Hexapawn(P1, cols, rows, Open, spots)
+    new Hexapawn(P1, cols, rows, DrawCond.Open, spots)
   }
   type Grid = Array[Option[Player]]
 }

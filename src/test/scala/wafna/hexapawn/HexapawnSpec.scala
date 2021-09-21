@@ -1,7 +1,7 @@
 package wafna.hexapawn
 
 import wafna.TestBase
-import wafna.hexapawn.Hexapawn.Open
+import wafna.hexapawn.Hexapawn.DrawCond
 import wafna.util.Player
 import wafna.util.Player.{P1, P2}
 
@@ -28,7 +28,7 @@ class HexapawnSpec extends TestBase {
       Seq(2, 5, 8).foreach { p =>
         val spots = Array.fill(9)(None: Option[Player])
         spots(p) = Some(P1)
-        val g = new Hexapawn(P2, 3, 3, Open, spots)
+        val g = new Hexapawn(P2, 3, 3, DrawCond.Open, spots)
         g.winner shouldBe Some(Some(P1))
       }
     }
@@ -36,7 +36,7 @@ class HexapawnSpec extends TestBase {
       Seq(0, 3, 6).foreach { p =>
         val spots = Array.fill(9)(None: Option[Player])
         spots(p) = Some(P2)
-        val g = new Hexapawn(P1, 3, 3, Open, spots)
+        val g = new Hexapawn(P1, 3, 3, DrawCond.Open, spots)
         g.winner shouldBe Some(Some(P2))
       }
     }

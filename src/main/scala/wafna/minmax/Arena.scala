@@ -1,12 +1,19 @@
 package wafna.minmax
 
 import wafna.minmax.MinMax.Eval
+import wafna.minmax.MinMax.State.{Drawn, Open, Won}
 import wafna.util.Player.{P1, P2}
 
 import scala.annotation.tailrec
 import scala.util.Random
+import scala.util.control.NoStackTrace
 
 object Arena {
+
+  class ArenaException(msg: String) extends Exception(msg) with NoStackTrace
+  object ArenaException {
+    def apply(msg: String): Nothing = throw new ArenaException(msg)
+  }
 
   abstract class Bot[G](implicit minMax: MinMax[G]) {
     def show(): String
@@ -48,18 +55,20 @@ object Arena {
   def runMatch[G](game: G, p1: Bot[G], p2: Bot[G], games: Int)(implicit minMax: MinMax[G]): Match = {
     require(0 < games)
     val score = Iterator.continually(game).take(games).foldLeft((0, 0, 0)) { (score, game) =>
-      val score1 = minMax.winner(runGame(game, p1, p2)) match {
-        case None => (score._1, score._2, score._3 + 1)
-        case Some(winner) =>
+      val score1 = minMax.state(runGame(game, p1, p2)) match {
+        case Open  => ArenaException(s"Open game.")
+        case Drawn => (score._1, score._2, score._3 + 1)
+        case Won(winner) =>
           winner match {
             case P1 => (score._1 + 1, score._2, score._3)
             case P2 => (score._1, score._2 + 1, score._3)
           }
 
       }
-      minMax.winner(runGame(game, p2, p1)) match {
-        case None => (score1._1, score1._2, score1._3 + 1)
-        case Some(winner) =>
+      minMax.state(runGame(game, p2, p1)) match {
+        case Open  => ArenaException(s"Drawn game.")
+        case Drawn => (score._1, score._2, score._3 + 1)
+        case Won(winner) =>
           winner match {
             case P1 => (score1._1, score1._2 + 1, score1._3)
             case P2 => (score1._1 + 1, score1._2, score1._3)

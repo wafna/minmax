@@ -1,6 +1,8 @@
 package wafna.hexapawn
 
+import wafna.hexapawn.Hexapawn.DrawCond
 import wafna.minmax.MinMax
+import wafna.minmax.MinMax.State
 import wafna.util.Player
 
 object HexapawnMinMax {
@@ -22,7 +24,19 @@ object HexapawnMinMax {
       game.nextMoves
     override def pass(game: Hexapawn): Hexapawn =
       game.pass()
-    override def winner(game: Hexapawn): Option[Player] =
-      game.winner.get
+    override def state(game: Hexapawn): State =
+      game.state match {
+        case DrawCond.Passed => State.Open
+        case DrawCond.Drawn  => State.Drawn
+        case DrawCond.Open =>
+          game.winner match {
+            case None => State.Open
+            case Some(w) =>
+              w match {
+                case None         => State.Drawn
+                case Some(player) => State.Won(player)
+              }
+          }
+      }
   }
 }

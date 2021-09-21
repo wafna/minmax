@@ -1,6 +1,7 @@
 package wafna.mancala
 
 import wafna.minmax.MinMax
+import wafna.minmax.MinMax.State
 import wafna.util.Player
 import wafna.util.Player.{P1, P2}
 
@@ -21,7 +22,13 @@ object MancalaMinMax {
     override def pass(game: Mancala): Mancala =
       game.pass()
 
-    override def winner(game: Mancala): Option[Player] =
-      if (game.score.p1 > game.score.p2) Some(P1) else if (game.score.p1 < game.score.p2) Some(P2) else None
+    override def state(game: Mancala): State =
+      if (game.score.p1 > game.score.p2) {
+        State.Won(P1)
+      } else if (game.score.p1 < game.score.p2) {
+        State.Won(P2)
+      } else {
+        State.Drawn
+      }
   }
 }
