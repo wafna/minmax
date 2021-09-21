@@ -9,7 +9,6 @@ class MinMaxSpec extends TestBase {
 
   import wafna.minmax.MinMaxSpec._
 
-  implicit val mm: MinMax[Game] = GameTreeMinMax
   "MinMax" should {
     def testSearch(depth: Int)(expectedGameId: String)(game: Game): Assertion = {
       MinMax.search(game, depth).get.game.id shouldBe expectedGameId
@@ -73,7 +72,7 @@ object MinMaxSpec {
   sealed trait Node
   case class Game(id: String, eval: Option[Int], player: Player, moves: List[Game] = List.empty) extends Node
 
-  implicit object GameTreeMinMax extends MinMax[Game] {
+  implicit val gameTreeMinMax: MinMax[Game] = new MinMax[Game] {
     override def currentPlayer(game: Game): util.Player = game.player
     override def evaluate(game: Game, player: util.Player): Int =
       game.eval.getOrElse(sys.error(s"Illegal evaluation at game ${game.id}"))

@@ -1,14 +1,11 @@
 package wafna.hexapawn
 
-import wafna.hexapawn.Hexapawn.ShowPlayer
 import wafna.minmax.MinMax
 import wafna.util.Player
 
 object HexapawnMinMax {
 
-  type HexapawnMinMax = MinMax[Hexapawn]
-
-  implicit object HexapawnMinMaxTC extends HexapawnMinMax {
+  implicit val hexapawnMinMax: MinMax[Hexapawn] = new MinMax[Hexapawn] {
     override def currentPlayer(game: Hexapawn): Player =
       game.currentPlayer
     override def evaluate(game: Hexapawn, player: Player): Int = {

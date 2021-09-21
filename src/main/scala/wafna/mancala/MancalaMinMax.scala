@@ -6,9 +6,7 @@ import wafna.util.Player.{P1, P2}
 
 object MancalaMinMax {
 
-  type MancalaMinMax = MinMax[Mancala]
-
-  implicit object MancalaMinMax extends MinMax[Mancala] {
+  implicit val mancalaMinMax = new MinMax[Mancala] {
     override def currentPlayer(game: Mancala): Player =
       game.currentPlayer
     override def evaluate(game: Mancala, player: Player): Int = {
