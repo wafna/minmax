@@ -11,11 +11,11 @@ class MinMaxSpec extends TestBase {
 
   implicit val mm: MinMax[Game] = GameTreeMinMax
   "MinMax" should {
-    def runTree(depth: Int)(expected: String)(tree: Game): Assertion = {
-      expected shouldBe MinMax.search(tree, depth).get.game.id
+    def testSearch(depth: Int)(expectedGameId: String)(game: Game): Assertion = {
+      MinMax.search(game, depth).get.game.id shouldBe expectedGameId
     }
     "select the best move" in {
-      runTree(1)("1-2") {
+      testSearch(1)("1-2") {
         // format: off
         Game("0", None, P1, List(
           Game("1-1", Some(0), P2),
@@ -24,7 +24,7 @@ class MinMaxSpec extends TestBase {
         ))
         // format: on
       }
-      runTree(1)("1-4") {
+      testSearch(1)("1-4") {
         // format: off
         Game("0", None, P1, List(
           Game("1-1", Some(0), P2),
@@ -36,7 +36,7 @@ class MinMaxSpec extends TestBase {
       }
     }
     "prune the tree" in {
-      runTree(2)("1-1") {
+      testSearch(2)("1-1") {
         // format: off
         Game("1", None, P1, List(
           Game("1-1", None, P2, List(
@@ -52,7 +52,7 @@ class MinMaxSpec extends TestBase {
       }
     }
     "evaluate early" in {
-      runTree(2)("1-2") {
+      testSearch(2)("1-2") {
         // format: off
         Game("1", None, P1, List(
           Game("no children: evaluate immediately", Some(-3), P2),
