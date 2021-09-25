@@ -52,10 +52,10 @@ class MinMaxSpec extends TestBase {
       }
     }
     "evaluate early" in {
-      testSearch(2)("1-2") {
+      testSearch(2)("1-1") {
         // format: off
         Game("1", None, P1, Right(List(
-          Game("no children: evaluate immediately", Some(-3), P2),
+          Game("1-1", Some(-1), P2),
           Game("1-2", None, P2, Right(List(
             Game("1-2-1", Some(0), P1),
             Game("triggers a prune", Some(-2), P1),
@@ -75,9 +75,9 @@ object MinMaxSpec {
   implicit val gameTreeMinMax: MinMax[Game] = new MinMax[Game] {
     override def currentPlayer(game: Game): Player = game.player
     override def evaluate(game: Game, player: Player): Int =
-      game.eval.getOrElse(sys.error(s"Illegal evaluation at game ${game.id}"))
+      game.eval.getOrElse(sys.error(s"Illegal evaluation at game '${game.id}''"))
     override def moves(game: Game): Seq[Game] =
-      game.state.getOrElse(sys.error(s"No moves: ${game.id} ${game.state}"))
+      game.state.getOrElse(sys.error(s"No moves: '${game.id}' ${game.state}"))
     override def pass(game: Game): Game =
       game.copy(player = game.player.opponent)
     override def state(game: Game): State =
