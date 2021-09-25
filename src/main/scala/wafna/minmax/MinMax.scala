@@ -1,6 +1,7 @@
 package wafna.minmax
 
 import wafna.minmax.MinMax.State
+import wafna.minmax.MinMax.State.{Drawn, Open}
 import wafna.util.Player
 
 import scala.annotation.tailrec
@@ -76,7 +77,11 @@ object MinMax {
             searchMoves(ms, b)
           }
       }
-      searchMoves(minMax.moves(game), None)
+      if (Open == minMax.state(game)) {
+        searchMoves(minMax.moves(game), None)
+      } else {
+        minMax.evaluate(game, searchingPlayer)
+      }
     }
   }
 }
