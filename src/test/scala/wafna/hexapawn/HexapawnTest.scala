@@ -5,7 +5,7 @@ import wafna.hexapawn.Hexapawn.DrawCond
 import wafna.util.Player
 import wafna.util.Player.{P1, P2}
 
-class HexapawnSpec extends TestBase {
+class HexapawnTest extends TestBase {
   "A new 3x3" should {
     val (cols, rows) = (3, 3)
     val g0 = Hexapawn(rows, cols)
