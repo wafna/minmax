@@ -3,6 +3,7 @@ package wafna.minmax
 import org.scalatest.Assertion
 import wafna.TestBase
 import wafna.minmax.MinMax.State
+import wafna.minmax.MinMax.State.{Drawn, Won}
 import wafna.util.Player
 import wafna.util.Player.{P1, P2}
 
@@ -18,24 +19,24 @@ class MinMaxTest extends TestBase {
 
     "select the best move" in {
       bothWays.foreach { case (p1, p2) =>
-        testSearch(1)(Some("1-2")) {
+        testSearch(1)(Some("2")) {
           // format: off
         Game("0", None, p1, Right(List(
-          Game("1-1", Some(0), p2),
-          Game("1-2", Some(1), p2),
-          Game("1-3", Some(-1), p2)
+          Game("1", Some(0), p2),
+          Game("2", Some(1), p2),
+          Game("3", Some(-1), p2)
         )))
         // format: on
         }
       }
       bothWays.foreach { case (p1, p2) =>
-        testSearch(1)(Some("1-4")) {
+        testSearch(1)(Some("4")) {
           // format: off
         Game("0", None, p1, Right(List(
-          Game("1-1", Some(0), p2),
-          Game("1-2", Some(1), p2),
-          Game("1-3", Some(-1), p2),
-          Game("1-4", Some(2), p2)
+          Game("1", Some(0), p2),
+          Game("2", Some(1), p2),
+          Game("3", Some(-1), p2),
+          Game("4", Some(2), p2)
         )))
         // format: on
         }
@@ -43,14 +44,14 @@ class MinMaxTest extends TestBase {
     }
     "prune the tree" in {
       bothWays.foreach { case (p1, p2) =>
-        testSearch(2)(Some("1-1")) {
+        testSearch(2)(Some("1")) {
           // format: off
           Game("1", None, p1, Right(List(
-            Game("1-1", None, p2, Right(List(
-              Game("1-1-1", Some(-1), p1)
+            Game("1", None, p2, Right(List(
+              Game("1", Some(-1), p1)
             ))),
-            Game("1-2", None, p2, Right(List(
-              Game("1-2-1", Some(0), p1),
+            Game("2", None, p2, Right(List(
+              Game("2-1", Some(0), p1),
               Game("triggers a prune", Some(-2), p1),
               Game("pruned: do not evaluate!", None, p1)
             )))
@@ -61,12 +62,12 @@ class MinMaxTest extends TestBase {
     }
     "evaluate early" in {
       bothWays.foreach { case (p1, p2) =>
-        testSearch(2)(Some("1-1")) {
+        testSearch(2)(Some("1")) {
           // format: off
           Game("1", None, p1, Right(List(
-            Game("1-1", Some(-1), p2),
-            Game("1-2", None, p2, Right(List(
-              Game("1-2-1", Some(0), p1),
+            Game("1", Some(-1), p2),
+            Game("2", None, p2, Right(List(
+              Game("2-1", Some(0), p1),
               Game("triggers a prune", Some(-2), p1),
               Game("pruned: do not evaluate!", None, p1)
             )))
@@ -75,14 +76,48 @@ class MinMaxTest extends TestBase {
         }
       }
     }
-    "work in complex game" in {
-      testSearch(2)(None) {
-        Game("1", None, P1, Right(List.empty))
+    "fail on invalid game state" in {
+      bothWays.foreach { case (p1, _) =>
+        testSearch(1)(None) {
+          Game("1", None, p1, Right(Nil))
+        }
       }
     }
-    "fail on invalid game state" in {
-      testSearch(1)(None) {
-        Game("1", None, P1, Right(List.empty))
+    "evaluates to max depth only" in {
+      bothWays.foreach { case (p1, p2) =>
+        testSearch(2)(Some("1")) {
+          // format: off
+          Game("1", None, p1, Right(List(
+            Game("1", None, p2, Right(List(
+              Game("1-1", Some(0), p1, Right(List(
+                Game("do_not_evaluate", None, p2, Right(Nil))
+              )))
+            )))
+          )))
+          // format: on
+        }
+      }
+    }
+    "depth 2 something" in {
+      bothWays.foreach { case (p1, p2) =>
+        testSearch(2)(Some("2")) {
+          // format: off
+          Game("1", None, p1, Right(List(
+            Game("1", None, p2, Right(List(
+              Game("1-1", Some(-1), p1, Left(Won(p2))),
+              Game("1-2", Some(0), p1, Right(Nil))
+            ))),
+            Game("2", None, p2, Right(List(
+              Game("2-1", Some(2), p1, Right(Nil)),
+              Game("2-1", Some(3), p1, Right(Nil))
+            ))),
+            Game("3", None, p2, Right(List(
+              Game("3-1", Some(-2), p1, Right(Nil)),
+              Game("3-1", None, p1, Right(Nil))
+            )))
+          )))
+          // format: on
+        }
       }
     }
   }
