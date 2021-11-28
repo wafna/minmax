@@ -51,6 +51,7 @@ class Onimata private (p1: Hand, p2: Hand, pass: Either[Card, Card], board: Boar
 }
 
 object Onimata {
-  def construct(p1: Hand, p2: Hand, pass: Card): Onimata = new Onimata(p1, p2, Right(pass), Board())
-  def apply(): Onimata = Deck().pipe((construct _).tupled)
+  def apply(): Onimata = Deck() match {
+    case (p1, p2, pass) => new Onimata(p1, p2, Right(pass), Board())
+  }
 }
