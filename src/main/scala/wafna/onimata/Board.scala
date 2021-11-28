@@ -13,7 +13,9 @@ object Spot {
 }
 
 class Board private (spots: ArraySeq[Option[Piece]]) {
-  require(25 == spots.length)
+  var grid: Iterator[Option[Piece]] = spots.iterator
+
+  require(25 == spots.length, s"Required 25 spots, got ${spots.length}")
 
   def spot(spot: Spot): Option[Piece] = spots(spot.x + (5 * spot.y))
 
@@ -41,6 +43,16 @@ object Board {
       Some(Piece(P1, King)),
       Some(Piece(P1, Pawn)),
       Some(Piece(P1, Pawn)),
+      None,
+      None,
+      None,
+      None,
+      None,
+      None,
+      None,
+      None,
+      None,
+      None,
       None,
       None,
       None,

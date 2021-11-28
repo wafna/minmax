@@ -25,6 +25,8 @@ case class Piece(owner: Player, kind: Kind)
 
 // The direction of the pass indicates the player with turn in hand.
 class Onimata private (p1: Hand, p2: Hand, pass: Either[Card, Card], board: Board) {
+
+  def grid(): Iterator[Option[Piece]] = board.grid
   def moves(): List[Onimata] = {
     def moveP1(hand: Hand, passCard: Card, board: Board) =
       new Onimata(hand, p2, Left(passCard), board)

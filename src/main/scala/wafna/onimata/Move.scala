@@ -15,7 +15,7 @@ object Deck {
     Card("Ox", ArraySeq(Move(1, 0), Move(0, -1), Move(0, 1))),
     Card("Horse", ArraySeq(Move(-1, 0), Move(0, -1), Move(0, 1))),
     Card("Goose", ArraySeq(Move(-1, 0), Move(-1, 1), Move(1, 0), Move(1, -1))),
-    Card("Rooster", ArraySeq(Move(-1, 0), Move(-1, -11), Move(1, 0), Move(1, 1))),
+    Card("Rooster", ArraySeq(Move(-1, 0), Move(-1, -1), Move(1, 0), Move(1, 1))),
     Card("Cobra", ArraySeq(Move(-1, 0), Move(1, 1), Move(1, -1))),
     Card("Eel", ArraySeq(Move(1, 0), Move(-1, 1), Move(-1, -1))),
     Card("Mantis", ArraySeq(Move(-1, 1), Move(1, 1), Move(0, -1))),
@@ -23,7 +23,7 @@ object Deck {
     Card("Rabbit", ArraySeq(Move(-1, -1), Move(1, 1), Move(2, 0))),
     Card("Frog", ArraySeq(Move(1, -1), Move(-1, 1), Move(-2, 0))),
     Card("Boar", ArraySeq(Move(-1, 0), Move(1, 0), Move(0, 1))),
-    Card("Crab", ArraySeq(Move(-2, 0), Move(1, 0), Move(0, 2))),
+    Card("Crab", ArraySeq(Move(-2, 0), Move(0, 1), Move(2, 0))),
     Card("Elephant", ArraySeq(Move(-1, 0), Move(-1, 1), Move(1, 0), Move(1, 1)))
   )
   def apply(): (Hand, Hand, Card) = {
