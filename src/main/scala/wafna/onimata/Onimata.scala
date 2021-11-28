@@ -30,10 +30,12 @@ class Onimata private (p1: Hand, p2: Hand, pass: Either[Card, Card], board: Boar
       new Onimata(hand, p2, Left(passCard), board)
     def moveP2(hand: Hand, passCard: Card, board: Board) =
       new Onimata(p1, hand, Right(passCard), board)
+
     val (player, hand @ Hand(c1, c2), passCard, mover) = pass match {
       case Right(c) => (P1, p1, c, moveP1 _)
       case Left(c)  => (P2, p2, c, moveP2 _)
     }
+
     val pawns = board.occupied(player)
     List(c1, c2).flatMap { card =>
       val hand1 = hand.cycle(card, passCard)
