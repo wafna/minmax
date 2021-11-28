@@ -1,8 +1,17 @@
 package wafna.onimata
 
 import scala.collection.immutable.ArraySeq
+import scala.util.chaining._
 
-case class Hand(c1: Card, c2: Card)
+case class Hand(c1: Card, c2: Card) {
+  def cycle(out: Card, in: Card): Hand = {
+    if (c1 == out) { Hand(in, c2) }
+    else if (c2 == out) { Hand(c1, in) }
+    else {
+      throw new IllegalArgumentException(s"Card $c1 not in hand ${c1 -> c2}")
+    }
+  }
+}
 
 sealed trait Player
 case object P1 extends Player
@@ -14,44 +23,32 @@ case object King extends Kind
 
 case class Piece(owner: Player, kind: Kind)
 
-final case class Spot(x: Int, y: Int) {
-  def valid: Boolean = 0 <= x && x < 5 && 0 <= y && y < 5
-  def +(spot: Spot): Spot = Spot(x + spot.x, y + spot.y)
-  def toIx: Int = x + (5 * y)
-}
-
-final case class Move(x: Int, y: Int)
-
-sealed abstract class Card(val name: String, val moves: ArraySeq[Move])
-case object Monkey extends Card("Monkey", ArraySeq(Move(-1, -1), Move(1, -1), Move(-1, 1), Move(1, 1)))
-case object Dragon extends Card("Dragon", ArraySeq(Move(-1, -1), Move(1, -1), Move(-2, 1), Move(2, 1)))
-case object Tiger extends Card("Tiger", ArraySeq(Move(0, 2), Move(0, -1)))
-case object Ox extends Card("Ox", ArraySeq(Move(1, 0), Move(0, -1), Move(0, 1)))
-case object Horse extends Card("Horse", ArraySeq(Move(-1, 0), Move(0, -1), Move(0, 1)))
-case object Goose extends Card("Goose", ArraySeq(Move(-1, 0), Move(-1, 1), Move(1, 0), Move(1, -1)))
-case object Rooster extends Card("Rooster", ArraySeq(Move(-1, 0), Move(-1, -11), Move(1, 0), Move(1, 1)))
-case object Cobra extends Card("Cobra", ArraySeq(Move(-1, 0), Move(1, 1), Move(1, -1)))
-case object Eel extends Card("Eel", ArraySeq(Move(1, 0), Move(-1, 1), Move(-1, -1)))
-case object Mantis extends Card("Mantis", ArraySeq(Move(-1, 1), Move(1, 1), Move(0, -1)))
-case object Crane extends Card("Crane", ArraySeq(Move(-1, -1), Move(1, -1), Move(0, 1)))
-case object Rabbit extends Card("Rabbit", ArraySeq(Move(-1, -1), Move(1, 1), Move(2, 0)))
-case object Frog extends Card("Frog", ArraySeq(Move(1, -1), Move(-1, 1), Move(-2, 0)))
-case object Boar extends Card("Boar", ArraySeq(Move(-1, 0), Move(1, 0), Move(0, 1)))
-case object Crab extends Card("Crab", ArraySeq(Move(-2, 0), Move(1, 0), Move(0, 2)))
-case object Elephant extends Card("Elephant", ArraySeq(Move(-1, 0), Move(-1, 1), Move(1, 0), Move(1, 1)))
-
-object Card {}
-
 // The direction of the pass indicates the player with turn in hand.
 class Onimata private (p1: Hand, p2: Hand, pass: Either[Card, Card], board: Board) {
   def moves(): List[Onimata] = {
-    val Hand(c1, c2) = pass match {
-      case Right(_) => p1
-      case Left(_)  => p2
+    def moveP1(hand: Hand, passCard: Card, board: Board) =
+      new Onimata(hand, p2, Left(passCard), board)
+    def moveP2(hand: Hand, passCard: Card, board: Board) =
+      new Onimata(p1, hand, Right(passCard), board)
+    val (player, hand @ Hand(c1, c2), passCard, mover) = pass match {
+      case Right(c) => (P1, p1, c, moveP1 _)
+      case Left(c)  => (P2, p2, c, moveP2 _)
+    }
+    val pawns = board.occupied(player)
+    List(c1, c2).flatMap { card =>
+      val hand1 = hand.cycle(card, passCard)
+      val moves = (for {
+        pawn <- pawns
+        move <- card.moves
+      } yield board.move(pawn, move)).flatten
+      moves.map { move =>
+        mover(hand1, card, move)
+      }
     }
   }
 }
 
 object Onimata {
-  def apply(p1: Hand, p2: Hand, pass: Card): Onimata = new Onimata(p1, p2, Right(pass), Board())
+  def construct(p1: Hand, p2: Hand, pass: Card): Onimata = new Onimata(p1, p2, Right(pass), Board())
+  def apply(): Onimata = Deck().pipe((construct _).tupled)
 }

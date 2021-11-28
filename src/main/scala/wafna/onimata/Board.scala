@@ -2,12 +2,22 @@ package wafna.onimata
 
 import scala.collection.immutable.ArraySeq
 
+final case class Spot(x: Int, y: Int) {
+  def valid: Boolean = 0 <= x && x < 5 && 0 <= y && y < 5
+  def +(move: Move): Spot = Spot(x + move.x, y + move.y)
+  def toIx: Int = x + (5 * y)
+}
+
+object Spot {
+  def fromIx(ix: Int): Spot = Spot(ix % 5, ix / 5)
+}
+
 class Board private (spots: ArraySeq[Option[Piece]]) {
   require(25 == spots.length)
 
   def spot(spot: Spot): Option[Piece] = spots(spot.x + (5 * spot.y))
 
-  def move(from: Spot, delta: Spot): Option[Board] = {
+  def move(from: Spot, delta: Move): Option[Board] = {
     val source = spot(from).getOrElse(throw new IllegalArgumentException(s"No piece at spot $from"))
     val target = from + delta
     if (!target.valid) {
@@ -18,11 +28,14 @@ class Board private (spots: ArraySeq[Option[Piece]]) {
       Some(new Board(spots.updated(target.toIx, Some(source)).updated(from.toIx, None)))
     }
   }
+
+  def occupied(player: Player): IndexedSeq[Spot] =
+    (0 until 25).filter(ix => spots(ix).exists(_.owner == player)).map(Spot.fromIx)
 }
 
 object Board {
   def apply(): Board = new Board(
-    Array(
+    ArraySeq(
       Some(Piece(P1, Pawn)),
       Some(Piece(P1, Pawn)),
       Some(Piece(P1, King)),
