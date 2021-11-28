@@ -37,6 +37,7 @@ class Hexapawn private[hexapawn] (
       winCon(currentPlayer.opponent) //.orElse(winCon(currentPlayer))
     }
   }
+
   def pass(): Hexapawn = {
     require(nextMoves.isEmpty)
     if (state == DrawCond.Passed) {
@@ -100,7 +101,7 @@ class Hexapawn private[hexapawn] (
     }
   def show(): String = {
     val s = new StringBuilder()
-    s.append(s"player = ${currentPlayer.show()}, state = $state, winner = ${winner}")
+    s.append(s"player = ${currentPlayer.show()}, state = $state, winner = $winner")
     s.append("\n")
     (0 until rows).foreach { urow =>
       val row = rows - urow - 1
