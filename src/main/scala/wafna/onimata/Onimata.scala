@@ -1,5 +1,8 @@
 package wafna.onimata
 
+import wafna.util.Player
+import wafna.util.Player.{P1, P2}
+
 import scala.util.chaining._
 
 case class Hand(c1: Card, c2: Card) {
@@ -13,10 +16,6 @@ case class Hand(c1: Card, c2: Card) {
   def toList: List[Card] = List(c1, c2)
 }
 
-sealed trait Player
-case object P1 extends Player
-case object P2 extends Player
-
 sealed trait Kind
 case object Pawn extends Kind
 case object King extends Kind
@@ -24,7 +23,7 @@ case object King extends Kind
 case class Piece(owner: Player, kind: Kind)
 
 // The direction of the pass indicates the player with turn in hand.
-class Onimata private (p1: Hand, p2: Hand, pass: Either[Card, Card], board: Board) {
+class Onimata private (val p1: Hand, val p2: Hand, val pass: Either[Card, Card], val board: Board) {
 
   def grid(): Iterator[Option[Piece]] = board.grid
   def moves(): List[Onimata] = {

@@ -1,5 +1,8 @@
 package wafna.onimata
 
+import wafna.util.Player
+import wafna.util.Player.{P1, P2}
+
 import scala.collection.immutable.ArraySeq
 
 final case class Spot(x: Int, y: Int) {
