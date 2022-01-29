@@ -1,5 +1,6 @@
 package wafna.onimata
 
+import cats.data.NonEmptyList
 import wafna.minmax.{GameOver, MinMax}
 import wafna.util
 import wafna.util.Player.{P1, P2}
@@ -10,6 +11,6 @@ class OnimataMinMax {
 
     override def evaluate(game: Onimata, player: util.Player): Int = ???
 
-    override def moves(game: Onimata): Either[GameOver, Seq[Onimata]] = ???
+    override def moves(game: Onimata): Either[GameOver, NonEmptyList[Onimata]] = ???
   }
 }
