@@ -1,4 +1,4 @@
-package wafna.mancala
+package wafna.games.mancala
 
 import org.slf4j.LoggerFactory
 import wafna.minmax.Arena

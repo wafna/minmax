@@ -1,4 +1,4 @@
-package wafna.onitama
+package wafna.games.onitama
 
 import cats.data.NonEmptyList
 import wafna.minmax.{GameOver, MinMax}

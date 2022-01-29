@@ -1,6 +1,6 @@
-package wafna.mancala
+package wafna.games.mancala
 
-import wafna.mancala.Mancala.{Score, move}
+import Mancala.{Score, move}
 import wafna.util.Player
 import wafna.util.Player._
 
