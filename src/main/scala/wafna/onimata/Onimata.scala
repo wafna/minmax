@@ -26,9 +26,12 @@ case class Piece(owner: Player, kind: Kind)
 class Onimata private (val p1: Hand, val p2: Hand, val pass: Either[Card, Card], val board: Board) {
 
   def grid(): Iterator[Option[Piece]] = board.grid
+
   def moves(): List[Onimata] = {
+
     def moveP1(hand: Hand, passCard: Card, board: Board) =
       new Onimata(hand, p2, Left(passCard), board)
+
     def moveP2(hand: Hand, passCard: Card, board: Board) =
       new Onimata(p1, hand, Right(passCard), board)
 
@@ -52,6 +55,7 @@ class Onimata private (val p1: Hand, val p2: Hand, val pass: Either[Card, Card],
 }
 
 object Onimata {
+
   def apply(): Onimata = Deck() match {
     case (p1, p2, pass) => new Onimata(p1, p2, Right(pass), Board())
   }

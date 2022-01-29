@@ -26,8 +26,8 @@ object Deck {
     Card("Crab", ArraySeq(Move(-2, 0), Move(0, 1), Move(2, 0))),
     Card("Elephant", ArraySeq(Move(-1, 0), Move(-1, 1), Move(1, 0), Move(1, 1)))
   )
-  def apply(): (Hand, Hand, Card) = {
-    val deck = Random.shuffle(cards)
+  def apply()(implicit random: Random = Random): (Hand, Hand, Card) = {
+    val deck = random.shuffle(cards)
     (Hand(deck(0), deck(1)), Hand(deck(2), deck(3)), deck(4))
   }
 }
