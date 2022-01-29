@@ -1,4 +1,4 @@
-package wafna.onimata
+package wafna.onitama
 
 import wafna.util.Player
 import wafna.util.Player.{P1, P2}

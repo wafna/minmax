@@ -1,4 +1,4 @@
-package wafna.onimata
+package wafna.onitama
 
 import wafna.util.Player.{P1, P2}
 
@@ -41,7 +41,7 @@ object Console {
 
   def main(args: Array[String]): Unit = {
     println("Onimata")
-    val g0 = Onimata()
+    val g0 = Onitama()
     Deck.cards.foreach { card =>
       println(show(card).mkString("\n"))
     }

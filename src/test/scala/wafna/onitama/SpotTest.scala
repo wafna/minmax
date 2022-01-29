@@ -1,4 +1,4 @@
-package wafna.onimata
+package wafna.onitama
 
 import wafna.TestBase
 

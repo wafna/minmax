@@ -1,4 +1,4 @@
-package wafna.onimata
+package wafna.onitama
 
 import scala.collection.immutable.ArraySeq
 import scala.util.Random

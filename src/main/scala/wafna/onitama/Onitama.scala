@@ -1,4 +1,4 @@
-package wafna.onimata
+package wafna.onitama
 
 import wafna.util.Player
 import wafna.util.Player.{P1, P2}
@@ -23,17 +23,17 @@ case object King extends Kind
 case class Piece(owner: Player, kind: Kind)
 
 // The direction of the pass indicates the player with turn in hand.
-class Onimata private (val p1: Hand, val p2: Hand, val pass: Either[Card, Card], val board: Board) {
+class Onitama private(val p1: Hand, val p2: Hand, val pass: Either[Card, Card], val board: Board) {
 
   def grid(): Iterator[Option[Piece]] = board.grid
 
-  def moves(): List[Onimata] = {
+  def moves(): List[Onitama] = {
 
     def moveP1(hand: Hand, passCard: Card, board: Board) =
-      new Onimata(hand, p2, Left(passCard), board)
+      new Onitama(hand, p2, Left(passCard), board)
 
     def moveP2(hand: Hand, passCard: Card, board: Board) =
-      new Onimata(p1, hand, Right(passCard), board)
+      new Onitama(p1, hand, Right(passCard), board)
 
     val (player, hand, passCard, mover) = pass match {
       case Right(c) => (P1, p1, c, moveP1 _)
@@ -54,9 +54,9 @@ class Onimata private (val p1: Hand, val p2: Hand, val pass: Either[Card, Card],
   }
 }
 
-object Onimata {
+object Onitama {
 
-  def apply(): Onimata = Deck() match {
-    case (p1, p2, pass) => new Onimata(p1, p2, Right(pass), Board())
+  def apply(): Onitama = Deck() match {
+    case (p1, p2, pass) => new Onitama(p1, p2, Right(pass), Board())
   }
 }
