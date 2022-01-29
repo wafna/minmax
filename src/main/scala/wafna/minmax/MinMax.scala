@@ -1,5 +1,6 @@
 package wafna.minmax
 
+import cats.data.NonEmptyList
 import wafna.util.Player
 
 import scala.annotation.tailrec
@@ -18,7 +19,7 @@ trait MinMax[G] {
   /** Return a non-empty list of moves from a game state
     * or declare the game to be over.
     */
-  def moves(game: G): Either[GameOver, Seq[G]]
+  def moves(game: G): Either[GameOver, NonEmptyList[G]]
 }
 
 sealed trait GameOver
@@ -54,13 +55,13 @@ object MinMax {
       .map {
         _.foldLeft(Option.empty[Eval[G]]) { (best, move) =>
           // prune with the current best value.
-          val eval: Int = evaluate(game = move, searchingPlayer: Player, prune = best.map(_.eval), depth = maxDepth - 1)
+          val eval: Int = searchPruned(game = move, searchingPlayer: Player, prune = best.map(_.eval), depth = maxDepth - 1)
           // always maximizing at the top.
           selectBest(1, best, Eval(move, eval))
         }.getOrElse(MinMaxError(s"No moves!"))
       }
   }
-  private def evaluate[G](game: G, searchingPlayer: Player, prune: Option[Int], depth: Int)(implicit
+  private def searchPruned[G](game: G, searchingPlayer: Player, prune: Option[Int], depth: Int)(implicit
     minMax: MinMax[G]
   ): Int = {
     if (0 == depth) {
@@ -72,9 +73,10 @@ object MinMax {
       @tailrec
       def searchMoves(moves: Seq[G], best: Option[Eval[G]]): Int = moves match {
         case Nil =>
+          // We should have selected a best move by now.
           best.map(_.eval).getOrElse(MinMaxError(s"No moves!"))
         case m :: ms =>
-          val eval = evaluate(m, searchingPlayer, best.map(_.eval), depth - 1)
+          val eval = searchPruned(m, searchingPlayer, best.map(_.eval), depth - 1)
           if (prune.exists(p => mm * p < mm * eval)) {
             eval
           } else {
@@ -86,7 +88,7 @@ object MinMax {
         case Left(Draw)        => 0
         case Left(Win(winner)) => if (searchingPlayer == winner) Int.MaxValue else Int.MinValue
         case Right(moves) =>
-          searchMoves(moves, None)
+          searchMoves(moves.toList, None)
       }
     }
   }

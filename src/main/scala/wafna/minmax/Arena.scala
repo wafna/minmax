@@ -28,11 +28,7 @@ object Arena {
     override def show(): String = "Random"
     override def move(game: G): Either[GameOver, Eval[G]] = {
       minMax.moves(game).flatMap { moves =>
-        if (moves.isEmpty) {
-          sys.error("No moves!")
-        } else {
-          Right(Eval(moves(new Random().nextInt(moves.length)), 0))
-        }
+        Right(Eval(moves.toList(new Random().nextInt(moves.length)), 0))
       }
     }
   }

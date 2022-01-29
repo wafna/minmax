@@ -31,4 +31,4 @@ val catsCore = "org.typelevel" %% "cats-core" % "2.7.0"
 Compile / scalacOptions += "-Xfatal-warnings"
 Test / run / fork := true
 
-libraryDependencies ++= Seq(slf4jApi, logbackClassic, typesafeConfig, javaxActivation, scalaTest % Test)
+libraryDependencies ++= Seq(slf4jApi, logbackClassic, typesafeConfig, catsCore, scalaTest % Test)
