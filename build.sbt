@@ -37,15 +37,4 @@ val dockerSpotifyTestKit = "com.whisk" %% "docker-testkit-impl-spotify" % docker
 Compile / scalacOptions += "-Xfatal-warnings"
 Test / run / fork := true
 
-val AllTest = "it,test"
-
-libraryDependencies ++= Seq(
-  slf4jApi,
-  logbackClassic,
-  typesafeConfig,
-  javaxActivation,
-  scalaTest % AllTest,
-  dockerSpotifyTestKit % IntegrationTest,
-  akkaActorTestKitTyped % IntegrationTest,
-  dockerTestKit % IntegrationTest
-)
+libraryDependencies ++= Seq(slf4jApi, logbackClassic, typesafeConfig, javaxActivation, scalaTest % Test)

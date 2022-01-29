@@ -1,5 +1,7 @@
 package wafna.onimata
 
+import wafna.util.Player.{P1, P2}
+
 //noinspection ConvertExpressionToSAM
 object Console {
 

@@ -1,28 +1,31 @@
 package wafna.minmax
 
-import wafna.minmax.MinMax.State
-import wafna.minmax.MinMax.State.{Drawn, Open}
 import wafna.util.Player
 
 import scala.annotation.tailrec
 
 /** Type class of MinMax games. */
 trait MinMax[G] {
+
+  /** The player with turn in hand for the game.
+    */
   def currentPlayer(game: G): Player
+
+  /** An evaluation of a game state from the perspective of a player.
+    */
   def evaluate(game: G, player: Player): Int
-  def moves(game: G): Seq[G]
-  def pass(game: G): G
-  def state(game: G): State
+
+  /** Return a non-empty list of moves from a game state
+    * or declare the game to be over.
+    */
+  def moves(game: G): Either[GameOver, Seq[G]]
 }
 
-object MinMax {
+sealed trait GameOver
+case object Draw extends GameOver
+case class Win(player: Player) extends GameOver
 
-  sealed trait State
-  object State {
-    final case object Open extends State
-    final case object Drawn extends State
-    final case class Won(player: Player) extends State
-  }
+object MinMax {
 
   /** A game plus its valuation relative to the searching player. */
   final case class Eval[G](game: G, eval: Int)
@@ -34,20 +37,27 @@ object MinMax {
       Some(maybe)
     }
 
+  class MinMaxError(msg: String) extends Exception(msg)
+  object MinMaxError {
+    def apply(msg: String): Nothing = throw new MinMaxError(msg)
+  }
+
   /** Search the current game to the specified depth for the best move.
     * @return None if there are no moves, perhaps there's a winner?
     */
-  def search[G](game: G, maxDepth: Int)(implicit minMax: MinMax[G]): Option[Eval[G]] = {
+  def search[G](game: G, maxDepth: Int)(implicit minMax: MinMax[G]): Either[GameOver, Eval[G]] = {
     require(0 < maxDepth, "maxDepth must be positive.")
     // This player is the player initiating the search, throughout.
     val searchingPlayer = minMax.currentPlayer(game)
     minMax
       .moves(game)
-      .foldLeft(Option.empty[Eval[G]]) { (best, move) =>
-        // prune with the current best value.
-        val eval: Int = evaluate(game = move, searchingPlayer: Player, prune = best.map(_.eval), depth = maxDepth - 1)
-        // always maximizing at the top.
-        selectBest(1, best, Eval(move, eval))
+      .map {
+        _.foldLeft(Option.empty[Eval[G]]) { (best, move) =>
+          // prune with the current best value.
+          val eval: Int = evaluate(game = move, searchingPlayer: Player, prune = best.map(_.eval), depth = maxDepth - 1)
+          // always maximizing at the top.
+          selectBest(1, best, Eval(move, eval))
+        }.getOrElse(MinMaxError(s"No moves!"))
       }
   }
   private def evaluate[G](game: G, searchingPlayer: Player, prune: Option[Int], depth: Int)(implicit
@@ -62,12 +72,7 @@ object MinMax {
       @tailrec
       def searchMoves(moves: Seq[G], best: Option[Eval[G]]): Int = moves match {
         case Nil =>
-          best.map(_.eval).getOrElse {
-            // If we have no moves and best is empty then we never had any moves.
-            // So, the moving player passes.
-            val pass: G = minMax.pass(game)
-            evaluate(pass, searchingPlayer, best.map(_.eval), depth - 1)
-          }
+          best.map(_.eval).getOrElse(MinMaxError(s"No moves!"))
         case m :: ms =>
           val eval = evaluate(m, searchingPlayer, best.map(_.eval), depth - 1)
           if (prune.exists(p => mm * p < mm * eval)) {
@@ -77,10 +82,11 @@ object MinMax {
             searchMoves(ms, b)
           }
       }
-      if (Open == minMax.state(game)) {
-        searchMoves(minMax.moves(game), None)
-      } else {
-        minMax.evaluate(game, searchingPlayer)
+      minMax.moves(game) match {
+        case Left(Draw)        => 0
+        case Left(Win(winner)) => if (searchingPlayer == winner) Int.MaxValue else Int.MinValue
+        case Right(moves) =>
+          searchMoves(moves, None)
       }
     }
   }
