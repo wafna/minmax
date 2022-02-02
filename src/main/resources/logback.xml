@@ -14,7 +14,7 @@
         <appender-ref ref="STDOUT"/>
     </appender>
 
-    <logger name="wafna.minmax.MinMax">
+    <logger name="wafna.games.minmax.MinMax">
         <level value="DEBUG"/>
     </logger>
 

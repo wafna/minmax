@@ -1,8 +1,8 @@
 package wafna.games.mancala
 
 import Mancala.{Score, move}
-import wafna.util.Player
-import wafna.util.Player._
+import wafna.games.util.Player
+import wafna.games.util.Player._
 
 import scala.annotation.tailrec
 

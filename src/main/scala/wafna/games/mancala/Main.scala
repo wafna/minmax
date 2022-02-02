@@ -1,8 +1,7 @@
 package wafna.games.mancala
 
 import org.slf4j.LoggerFactory
-import wafna.minmax.Arena
-import wafna.minmax.Arena.{RandomBot, SearchBot}
+import wafna.games.minmax.Arena
 
 object Main extends App {
 

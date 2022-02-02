@@ -1,4 +1,4 @@
-package wafna
+package wafna.games
 
 import cats.data.NonEmptyList
 

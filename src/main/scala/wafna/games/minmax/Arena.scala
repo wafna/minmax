@@ -1,7 +1,8 @@
-package wafna.minmax
+package wafna.games.minmax
 
-import wafna.minmax.MinMax.Eval
-import wafna.util.Player.{P1, P2}
+import wafna.games.minmax.MinMax.Eval
+import MinMax.Eval
+import wafna.games.util.Player.{P1, P2}
 
 import scala.annotation.tailrec
 import scala.util.Random

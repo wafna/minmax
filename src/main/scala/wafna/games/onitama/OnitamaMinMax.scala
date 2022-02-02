@@ -1,9 +1,10 @@
 package wafna.games.onitama
 
 import cats.data.NonEmptyList
-import wafna.minmax.{GameOver, MinMax}
-import wafna.util
-import wafna.util.Player.{P1, P2}
+import wafna.games.minmax.{GameOver, MinMax}
+import wafna.games.util
+import wafna.games.minmax.GameOver
+import wafna.games.util.Player.{P1, P2}
 
 class OnitamaMinMax {
   implicit val hexapawnMinMax: MinMax[Onitama] = new MinMax[Onitama] {

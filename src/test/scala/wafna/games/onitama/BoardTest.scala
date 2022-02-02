@@ -1,7 +1,7 @@
 package wafna.games.onitama
 
 import wafna.TestBase
-import wafna.util.Player.{P1, P2}
+import wafna.games.util.Player.{P1, P2}
 
 class BoardTest extends TestBase {
 
