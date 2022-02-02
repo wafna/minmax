@@ -3,7 +3,8 @@ package wafna.games.onitama
 import wafna.games.util.Player
 import wafna.games.util.Player.{P1, P2}
 
-import scala.util.chaining._
+import scala.util.Random
+import scala.util.chaining.*
 
 case class Hand(c1: Card, c2: Card) {
   def cycle(out: Card, in: Card): Hand = {
@@ -56,7 +57,9 @@ class Onitama private(val p1: Hand, val p2: Hand, val pass: Either[Card, Card], 
 
 object Onitama {
 
-  def apply(): Onitama = Deck() match {
+  def apply()(implicit random: Random = Random): Onitama = Deck() match {
     case (p1, p2, pass) => new Onitama(p1, p2, Right(pass), Board())
   }
+  def apply(hand1: Hand, hand2: Hand, pass: Card): Onitama =
+    new Onitama(hand1, hand2, Right(pass), Board())
 }
