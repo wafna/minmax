@@ -1,6 +1,6 @@
 // scala-demo
 
-ThisBuild / scalaVersion := "2.13.6"
+ThisBuild / scalaVersion := "3.1.1"
 ThisBuild / organization := "wafna"
 
 ThisBuild / run / fork := true
@@ -22,7 +22,7 @@ val slf4jApi = "org.slf4j" % "slf4j-api" % slf4jVersion
 val logbackClassic = "ch.qos.logback" % "logback-classic" % logbackVersion
 val log4j = "log4j" % "log4j" % "1.2.17"
 
-val javaxActivation = "javax.activation" % "activation" % "1.1.1"
+//val javaxActivation = "javax.activation" % "activation" % "1.1.1"
 
 val scalaTest = "org.scalatest" %% "scalatest" % scalaTestVersion
 

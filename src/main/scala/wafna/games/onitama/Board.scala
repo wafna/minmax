@@ -20,11 +20,11 @@ class Board private (spots: ArraySeq[Option[Piece]]) {
 
   require(25 == spots.length, s"Required 25 spots, got ${spots.length}")
 
-  def spot(spot: Spot): Option[Piece] = spots(spot.x + (5 * spot.y))
+  @inline def spot(spot: Spot): Option[Piece] = spots(spot.toIx)
 
-  def move(from: Spot, delta: Move): Option[Board] = {
+  def move(from: Spot, move: Move): Option[Board] = {
     val source = spot(from).getOrElse(throw new IllegalArgumentException(s"No piece at spot $from"))
-    val target = from + delta
+    val target = from + move
     if (!target.valid) {
       None
     } else if (spot(target).exists(_.owner == source.owner)) {
