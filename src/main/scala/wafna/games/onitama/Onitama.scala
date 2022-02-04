@@ -1,5 +1,6 @@
 package wafna.games.onitama
 
+import wafna.games.minmax.{GameOver, Win}
 import wafna.games.util.Player
 import wafna.games.util.Player.{P1, P2}
 
@@ -24,11 +25,17 @@ case object King extends Kind
 case class Piece(owner: Player, kind: Kind)
 
 // The direction of the pass indicates the player with turn in hand.
-class Onitama private(val p1: Hand, val p2: Hand, val pass: Either[Card, Card], val board: Board) {
+class Onitama private (val p1: Hand, val p2: Hand, val pass: Either[Card, Card], val board: Board) {
 
   def grid(): Iterator[Option[Piece]] = board.grid
 
+  //noinspection ScalaStyle
+  @throws[RuntimeException]("If the game is over, so don't ask.")
   def moves(): List[Onitama] = {
+
+    gameOver.foreach { end =>
+      sys.error(s"No moves; game is over: $end")
+    }
 
     def moveP1(hand: Hand, passCard: Card, board: Board) =
       new Onitama(hand, p2, Left(passCard), board)
@@ -50,6 +57,45 @@ class Onitama private(val p1: Hand, val p2: Hand, val pass: Either[Card, Card], 
       } yield board.move(pawn, move)).flatten
       moves.map { move =>
         mover(hand1, card, move)
+      }
+    }
+  }
+
+  //noinspection ScalaStyle
+  val gameOver: Option[GameOver] = {
+    // Get each player's pieces.
+    val pieces: (List[Piece], List[Piece]) =
+      grid().foldLeft((List.empty[Piece], List.empty[Piece])) { (pieces, spot) =>
+        spot match {
+          case None => pieces
+          case Some(piece) =>
+            piece.owner match {
+              case P1 => (piece :: pieces._1, pieces._2)
+              case P2 => (pieces._1, piece :: pieces._2)
+            }
+        }
+      }
+    // Player is absent from the field.
+    if (pieces._1.isEmpty) {
+      Some(Win(P2))
+    } else if (pieces._2.isEmpty) {
+      Some(Win(P1))
+    } else {
+      // Player has lost their King.
+      if (!pieces._1.exists(_.kind == King)) {
+        Some(Win(P2))
+      } else if (!pieces._2.exists(_.kind == King)) {
+        Some(Win(P1))
+      } else {
+        // Player has usurped the throne.
+        if (board.spot(Spot(2, 4)).contains(Piece(P1, King))) {
+          Some(Win(P1))
+        } else if (board.spot(Spot(2, 0)).contains(Piece(P2, King))) {
+          Some(Win(P1))
+        } else {
+          // Play on!
+          None
+        }
       }
     }
   }
