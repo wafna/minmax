@@ -1,7 +1,7 @@
 package wafna.games.minmax
 
 import cats.data.NonEmptyList
-import wafna.games.util.Player
+import wafna.games.Player
 
 import scala.annotation.tailrec
 

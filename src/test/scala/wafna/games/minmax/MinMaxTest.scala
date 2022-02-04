@@ -1,15 +1,15 @@
-package wafna.minmax
+package wafna.games
+package minmax
 
 import cats.data.NonEmptyList
 import org.scalatest.Assertion
 import wafna.TestBase
 import wafna.games.minmax.{Draw, GameOver, MinMax, Win}
-import wafna.games.util.Player.{P1, P2}
-import wafna.games.util.{Player, nonEmptyList}
+import wafna.games.Player.{P1, P2}
 
 class MinMaxTest extends TestBase {
 
-  import wafna.minmax.MinMaxTest._
+  import wafna.games.minmax.MinMaxTest._
 
   "MinMax" should {
     def testSearch(depth: Int)(expectedGameId: Either[GameOver, String])(game: Game): Assertion = {

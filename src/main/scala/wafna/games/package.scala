@@ -1,8 +1,8 @@
-package wafna.games
+package wafna
 
 import cats.data.NonEmptyList
 
-package object util {
+package object games {
 
   @inline def nonEmptyList[T](head: T, tail: T*): NonEmptyList[T] = NonEmptyList(head, tail.toList)
 

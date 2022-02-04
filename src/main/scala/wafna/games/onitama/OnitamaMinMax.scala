@@ -1,18 +1,31 @@
-package wafna.games.onitama
+package wafna.games
+package onitama
 
 import cats.data.NonEmptyList
-import wafna.games.minmax.{Arena, GameOver, MinMax, Win}
-import wafna.games.util
-import wafna.games.util.Player.{P1, P2}
+import wafna.games.minmax.{Arena, Draw, GameOver, MinMax, Win}
+import wafna.games.Player.{P1, P2}
 
 class OnitamaMinMax {
 
   implicit val onitamaMinMax: MinMax[Onitama] = new MinMax[Onitama] {
-    override def currentPlayer(game: Onitama): util.Player = if (game.pass.isRight) P1 else P2
 
-    override def evaluate(game: Onitama, player: util.Player): Int = ???
+    override def currentPlayer(game: Onitama): Player = if (game.pass.isRight) P1 else P2
 
-    override def moves(game: Onitama): Either[GameOver, NonEmptyList[Onitama]] = ???
+    override def evaluate(game: Onitama, player: Player): Int = game.gameOver match {
+      case Some(Draw) => 0 // why not?
+      case Some(Win(p)) => if (p == player) Int.MaxValue else Int.MinValue
+      case None =>
+        // todo worth favoring some early game optimizations?r
+        //   more interestingly, should evaluate be supplied by each player?
+        0
+    }
+
+    override def moves(game: Onitama): Either[GameOver, NonEmptyList[Onitama]] = game.gameOver match {
+      case None =>
+        Right(nonEmptyList(???))
+      case Some(gameOver) =>
+        Left(gameOver)
+    }
   }
 }
 

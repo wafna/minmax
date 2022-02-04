@@ -1,8 +1,9 @@
-package wafna.games.onitama
+package wafna.games
+package onitama
 
 import wafna.games.minmax.{GameOver, Win}
-import wafna.games.util.Player
-import wafna.games.util.Player.{P1, P2}
+import wafna.games.Player
+import wafna.games.Player.{P1, P2}
 
 import scala.util.Random
 import scala.util.chaining.*

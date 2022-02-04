@@ -1,8 +1,9 @@
-package wafna.games.mancala
+package wafna.games
+package mancala
 
 import Mancala.{Score, move}
-import wafna.games.util.Player
-import wafna.games.util.Player._
+import wafna.games.Player
+import wafna.games.Player._
 
 import scala.annotation.tailrec
 
@@ -15,7 +16,7 @@ class Mancala private[mancala] (val currentPlayer: Player, val score: Score, pit
     new Mancala(currentPlayer.opponent, score, pits1, pits2)
   }
 
-  lazy val spots: (Array[Int], Array[Int]) = copyPits(pits1) -> (copyPits(pits2))
+  lazy val spots: (Array[Int], Array[Int]) = copyPits(pits1) -> copyPits(pits2)
 
   lazy val nextMoves: Seq[Mancala] = {
     val pits = currentPlayer match {
@@ -38,7 +39,7 @@ class Mancala private[mancala] (val currentPlayer: Player, val score: Score, pit
   def show(): String = {
     val s = new StringBuilder
     s.append(s"score: (p1 = ${score.p1}, p2 = ${score.p2})\n")
-    s.append(s"turn: ${currentPlayer}\n")
+    s.append(s"turn: $currentPlayer\n")
     val (pits1, pits2) = spots
     s.append(pits2.reverseIterator.map(n => n.formatted("%4d")).mkString)
     s.append("\n")
