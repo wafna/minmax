@@ -15,7 +15,7 @@ class OnitamaMinMax {
       case Some(Draw) => 0 // why not?
       case Some(Win(p)) => if (p == player) Int.MaxValue else Int.MinValue
       case None =>
-        // todo worth favoring some early game optimizations?r
+        // todo worth favoring some early game optimizations?
         //   more interestingly, should evaluate be supplied by each player?
         0
     }
