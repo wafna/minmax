@@ -29,7 +29,6 @@ class Onitama private (val p1: Hand, val p2: Hand, val pass: Either[Card, Card],
 
   def grid(): Iterator[Option[Piece]] = board.grid
 
-  //noinspection ScalaStyle
   @throws[RuntimeException]("If the game is over, so don't ask.")
   def moves(): List[Onitama] = {
 
