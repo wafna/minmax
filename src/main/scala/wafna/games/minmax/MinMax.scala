@@ -1,6 +1,7 @@
 package wafna.games.minmax
 
 import cats.data.NonEmptyList
+import nl.grons.metrics4.scala.{DefaultInstrumented, Meter}
 import wafna.games.Player
 
 import scala.annotation.tailrec
@@ -44,18 +45,25 @@ object MinMax {
     override def evaluate(eval: Int): Unit = ()
   }
 
-  case class Stats(searches: Int, prunes: Int, evaluations: Int)
+  case class MeterSnapshot(count: Long, meanRate: Double)
 
-  class ListenerCounter extends Listener {
-    private var searches = 0
-    private var prunes = 0
-    private var evaluations = 0
+  object MeterSnapshot {
+    def apply(meter: Meter): MeterSnapshot =
+      MeterSnapshot(meter.count, meter.meanRate)
+  }
 
-    override def search(depth: Int): Unit = searches += 1
-    override def prune(): Unit = prunes += 1
-    override def evaluate(eval: Int): Unit = evaluations += 1
+  case class Stats(searches: MeterSnapshot, prunes: MeterSnapshot, evaluations: MeterSnapshot)
 
-    def stats(): Stats = Stats(searches, prunes, evaluations)
+  class ListenerCounter(name: String) extends Listener with DefaultInstrumented {
+    private val searches = metrics.meter(s"searches-$name")
+    private val prunes = metrics.meter(s"prunes-$name")
+    private val evaluations = metrics.meter(s"evaluations-$name")
+
+    override def search(depth: Int): Unit = searches.mark()
+    override def prune(): Unit = prunes.mark()
+    override def evaluate(eval: Int): Unit = evaluations.mark()
+
+    def stats(): Stats = Stats(MeterSnapshot(searches), MeterSnapshot(prunes), MeterSnapshot(evaluations))
   }
 
   /** A game plus its valuation relative to the searching player. */

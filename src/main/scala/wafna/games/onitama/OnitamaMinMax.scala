@@ -2,10 +2,11 @@ package wafna.games
 package onitama
 
 import cats.data.NonEmptyList
+import com.codahale.metrics.Snapshot
 import wafna.games.Player.{P1, P2}
 import wafna.games.minmax.*
 import wafna.games.minmax.Arena.*
-import wafna.games.minmax.MinMax.Eval
+import wafna.games.minmax.MinMax.{Eval, MeterSnapshot}
 
 import scala.util.Random
 
@@ -23,7 +24,8 @@ object OnitamaMinMax {
     }
   }
 
-  class OBot0[L <: MinMax.Listener](depth: Int)(implicit listener: L = MinMax.ListenerNoOp) extends SearchBot[Onitama, L](depth) {
+  class OBot0[L <: MinMax.Listener](depth: Int)(implicit listener: L = MinMax.ListenerNoOp)
+      extends Arena.SearchBot[Onitama, L](depth) {
 
     //noinspection ScalaStyle
     override def evaluate(game: Onitama, player: Player): Int = game.gameOver match {
@@ -65,8 +67,8 @@ object OnitamaMinMax {
 
     implicit val random: Random = scala.util.Random
 
-    val p1 = OBot0(6, new MinMax.ListenerCounter)
-    val p2 = OBot0(6, new MinMax.ListenerCounter)
+    val p1 = OBot0(6, new MinMax.ListenerCounter("p1"))
+    val p2 = OBot0(6, new MinMax.ListenerCounter("p2"))
 
     val (result, games): (GameOver, List[Onitama]) = Arena.runGame(Onitama(), p1, p2)
     println(result)
@@ -78,11 +80,18 @@ object OnitamaMinMax {
     val g = games.head
     val cards: List[Card] = g.p1.toNel.toList ++ g.p2.toNel.toList ++ List(g.pass.getOrElse(g.pass.swap.toOption.get))
     println("----------------------")
-    println(cards.map(Console.show).foldLeft(List.fill(6)("")) { (s, c) =>
-      s.zip(c).map(p => p._1 ++ "%1$-9s".format(p._2))
-    }.mkString("\n"))
+    println(
+      cards
+        .map(Console.show)
+        .foldLeft(List.fill(6)("")) { (s, c) =>
+          s.zip(c).map(p => p._1 ++ "%1$-9s".format(p._2))
+        }
+        .mkString("\n")
+    )
+    def showSnapshot(snapshot: MeterSnapshot): String =
+      f"${snapshot.count} (${snapshot.meanRate}%.0f)"
     def showStats(stats: MinMax.Stats): String =
-      s"searches = ${stats.searches}, evaluations = ${stats.evaluations}, prunes = ${stats.prunes}"
+      s"searches = ${showSnapshot(stats.searches)}, evaluations = ${showSnapshot(stats.evaluations)}, prunes = ${showSnapshot(stats.prunes)}"
     println("----------------------")
     println(s"P1: ${showStats(p1.getListener.stats())}")
     println(s"P2: ${showStats(p2.getListener.stats())}")
