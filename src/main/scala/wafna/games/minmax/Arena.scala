@@ -20,7 +20,7 @@ object Arena {
     def move(game: G): Either[GameOver, Eval[G]]
   }
 
-  abstract class SearchBot[G](depth: Int)(implicit minMax: MinMax[G]) extends Bot[G] {
+  abstract class SearchBot[G](depth: Int)(implicit minMax: MinMax[G], listener: MinMax.Listener = MinMax.ListenerNoOp) extends Bot[G] {
     override def show(): String = s"Search($depth)"
     override def move(game: G): Either[GameOver, Eval[G]] = {
       MinMax.search(game, depth, evaluate)

@@ -60,12 +60,4 @@ object Console {
       ) ++ show(game.board.spots)
   }
 
-  def main(args: Array[String]): Unit = {
-    println("Onimata")
-    val g0 = Onitama()
-    Deck.cards.toList.foreach { card =>
-      println(show(card).mkString("\n"))
-    }
-    println(show(g0.board.spots).mkString("\n"))
-  }
 }

@@ -29,6 +29,29 @@ object MinMax {
     def apply(msg: String): Nothing = throw new MinMaxError(msg)
   }
 
+  trait Listener {
+    def search(): Unit
+    def prune(): Unit
+    def evaluate(): Unit
+  }
+  object ListenerNoOp extends Listener {
+    override def search(): Unit = ()
+    override def prune(): Unit = ()
+    override def evaluate(): Unit = ()
+  }
+
+  case class Stats(searches: Int, prunes: Int, evaluations: Int)
+
+  class ListenerCounter extends Listener {
+    private var searches = 0
+    private var prunes = 0
+    private var evaluations = 0
+    override def search(): Unit = searches += 1
+    override def prune(): Unit = prunes += 1
+    override def evaluate(): Unit = evaluations += 1
+    def stats(): Stats = Stats(searches, prunes, evaluations)
+  }
+
   /** A game plus its valuation relative to the searching player. */
   final case class Eval[G](game: G, eval: Int)
 
@@ -44,7 +67,7 @@ object MinMax {
   /** Search the current game to the specified depth for the best move.
     */
   def search[G](game: G, maxDepth: Int, evaluator: Evaluator[G])(implicit
-    minMax: MinMax[G]
+    minMax: MinMax[G], listener: Listener = ListenerNoOp
   ): Either[GameOver, Eval[G]] = {
     require(0 < maxDepth, "maxDepth must be positive.")
     // This player is the player initiating the search, throughout.
@@ -69,10 +92,12 @@ object MinMax {
     evaluator: Evaluator[G],
     prune: Option[Int],
     depth: Int
-  )(implicit minMax: MinMax[G]): Int = {
+  )(implicit minMax: MinMax[G], listener: Listener): Int = {
     if (0 == depth) {
+      listener.evaluate()
       evaluator(game, searchingPlayer)
     } else {
+      listener.search()
       // This flips the sense of inequalities used in finding best moves and pruning searches.
       val mm = if (minMax.currentPlayer(game) == searchingPlayer) 1 else -1
 
@@ -84,12 +109,14 @@ object MinMax {
         case m :: ms =>
           val eval = searchPruned(m, searchingPlayer, evaluator, prune = best.map(_.eval), depth = depth - 1)
           if (prune.exists(p => mm * p < mm * eval)) {
+            listener.prune()
             eval
           } else {
             val b = selectBest(mm, best, Eval(m, eval))
             searchMoves(ms, b)
           }
       }
+
       minMax.moves(game) match {
         case Left(Draw)        => 0
         case Left(Win(winner)) => if (searchingPlayer == winner) Int.MaxValue else Int.MinValue
