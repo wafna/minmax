@@ -2,7 +2,7 @@ package wafna.games
 package onitama
 
 import cats.data.NonEmptyList
-import wafna.games.minmax.{Arena, Draw, GameOver, MinMax, Win}
+import wafna.games.minmax._
 import wafna.games.Player.{P1, P2}
 
 class OnitamaMinMax {
@@ -22,7 +22,7 @@ class OnitamaMinMax {
 
     override def moves(game: Onitama): Either[GameOver, NonEmptyList[Onitama]] = game.gameOver match {
       case None =>
-        Right(nonEmptyList(???))
+        Right(game.moves())
       case Some(gameOver) =>
         Left(gameOver)
     }

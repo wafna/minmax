@@ -1,6 +1,7 @@
 package wafna.games
 package onitama
 
+import cats.data.NonEmptyList
 import wafna.games.minmax.{GameOver, Win}
 import wafna.games.Player
 import wafna.games.Player.{P1, P2}
@@ -13,10 +14,10 @@ case class Hand(c1: Card, c2: Card) {
     if (c1 == out) { Hand(in, c2) }
     else if (c2 == out) { Hand(c1, in) }
     else {
-      throw new IllegalArgumentException(s"Card $c1 not in hand $toList")
+      throw new IllegalArgumentException(s"Card $c1 not in hand $toNel")
     }
   }
-  def toList: List[Card] = List(c1, c2)
+  def toNel: NonEmptyList[Card] = nonEmptyList(c1, c2)
 }
 
 sealed trait Kind
@@ -31,7 +32,7 @@ class Onitama private (val p1: Hand, val p2: Hand, val pass: Either[Card, Card],
   def grid(): Iterator[Option[Piece]] = board.grid
 
   @throws[RuntimeException]("If the game is over, so don't ask.")
-  def moves(): List[Onitama] = {
+  def moves(): NonEmptyList[Onitama] = {
 
     gameOver.foreach { end =>
       sys.error(s"No moves; game is over: $end")
@@ -49,14 +50,18 @@ class Onitama private (val p1: Hand, val p2: Hand, val pass: Either[Card, Card],
     }
 
     val pawns = board.occupied(player)
-    hand.toList.flatMap { card =>
+    hand.toNel.flatMap { card =>
       val hand1 = hand.cycle(card, passCard)
       val moves = (for {
         pawn <- pawns
-        move <- card.moves
+        move <- card.moves.iterator
       } yield board.move(pawn, move)).flatten
       moves.map { move =>
         mover(hand1, card, move)
+      }.toList match {
+        case Nil =>
+          ???
+        case head :: tail => NonEmptyList(head, tail)
       }
     }
   }

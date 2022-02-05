@@ -13,7 +13,7 @@ object Console {
     def getLines(card: Card): List[String] = {
       val grid = Array.fill(25)(' ')
       grid(12) = 'O'
-      card.moves.foreach { move =>
+      card.moves.toList.foreach { move =>
         grid(move.x + 2 + (5 * (move.y + 2))) = 'X'
       }
       val lines = grid.grouped(5).toList.reverse.map(_.foldLeft("")(_ + _))
@@ -42,7 +42,7 @@ object Console {
   def main(args: Array[String]): Unit = {
     println("Onimata")
     val g0 = Onitama()
-    Deck.cards.foreach { card =>
+    Deck.cards.toList.foreach { card =>
       println(show(card).mkString("\n"))
     }
     println(show(g0.grid()).mkString("\n"))

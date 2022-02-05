@@ -24,10 +24,10 @@ class OnitamaTest extends TestBase {
       // P2 has turn in hand.
       assert(moves.forall(_.pass.isLeft))
       // Each card in hand used as expected.
-      assertResult(8)(moves.count(_.pass == Left(Monkey)))
-      assertResult(6)(moves.count(_.pass == Left(Dragon)))
+      assertResult(8)(moves.iterator.count(_.pass == Left(Monkey)))
+      assertResult(6)(moves.iterator.count(_.pass == Left(Dragon)))
       // Pass card now in hand.
-      assertResult(14)(moves.count(_.p1.contains(Horse)))
+      assertResult(14)(moves.iterator.count(_.p1.contains(Horse)))
     }
   }
 }
