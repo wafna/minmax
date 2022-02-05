@@ -60,6 +60,8 @@ object MinMax {
         }.getOrElse(MinMaxError(s"No moves!"))
       }
   }
+  /** Below the first layer of search we may have a pruning value which we use to abort unfruitful searches.
+    */
   private def searchPruned[G](game: G, searchingPlayer: Player, prune: Option[Int], depth: Int)(implicit
     minMax: MinMax[G]
   ): Int = {
