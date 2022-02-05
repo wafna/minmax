@@ -20,13 +20,15 @@ object Arena {
     def show(): String
     def move(game: G): Either[GameOver, Eval[G]]
   }
+
   class SearchBot[G](depth: Int)(implicit minMax: MinMax[G]) extends Bot[G] {
     override def show(): String = s"Search($depth)"
     override def move(game: G): Either[GameOver, Eval[G]] = {
       MinMax.search(game, depth)
     }
   }
-  class RandomBot[G]()(implicit minMax: MinMax[G]) extends Bot[G] {
+
+  class RandomBot[G]()(implicit minMax: MinMax[G], random: Random =  Random) extends Bot[G] {
     override def show(): String = "Random"
     override def move(game: G): Either[GameOver, Eval[G]] = {
       minMax.moves(game).flatMap { moves =>
@@ -35,12 +37,12 @@ object Arena {
     }
   }
 
-  def runGame[G](game: G, p1: Bot[G], p2: Bot[G])(implicit minMax: MinMax[G]): GameOver = {
+  def runGame[G](game: G, p1: Bot[G], p2: Bot[G])(implicit minMax: MinMax[G]): (GameOver, G) = {
     @tailrec
-    def runPlayer(game: G, bots: LazyList[Bot[G]])(implicit minMax: MinMax[G]): GameOver = {
+    def runPlayer(game: G, bots: LazyList[Bot[G]])(implicit minMax: MinMax[G]): (GameOver, G) = {
       bots.head.move(game) match {
         case Left(gameOver) =>
-          gameOver
+          (gameOver, game)
         case Right(move) =>
           runPlayer(move.game, bots.tail)
       }
@@ -52,10 +54,10 @@ object Arena {
 
   def runMatch[G](game: G, p1: Bot[G], p2: Bot[G], games: Int)(implicit minMax: MinMax[G]): Match = {
     require(0 < games)
-    def keepScore(result: GameOver): (Int, Int, Int) = {
+    def keepScore(result: (GameOver, G)): (Int, Int, Int) = {
       result match {
-        case Draw => (0, 0, 1)
-        case Win(winner) =>
+        case (Draw, _) => (0, 0, 1)
+        case (Win(winner), _) =>
           winner match {
             case P1 => (1, 0, 0)
             case P2 => (0, 1, 0)

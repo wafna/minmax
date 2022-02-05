@@ -2,10 +2,14 @@ package wafna.games
 package onitama
 
 import cats.data.NonEmptyList
-import wafna.games.minmax._
+import wafna.games.minmax.*
+import wafna.games.minmax.Arena.*
 import wafna.games.Player.{P1, P2}
+import wafna.games.minmax.MinMax.Eval
 
-class OnitamaMinMax {
+import scala.util.Random
+
+object OnitamaMinMax {
 
   implicit val onitamaMinMax: MinMax[Onitama] = new MinMax[Onitama] {
 
@@ -27,11 +31,11 @@ class OnitamaMinMax {
         Left(gameOver)
     }
   }
-}
-
-object OnitamaMinMax {
 
   def main(args: Array[String]): Unit = {
-//    Arena.runGame(Onitama(),)
+    implicit val random: Random = scala.util.Random
+    val (result, game): (GameOver, Onitama) = Arena.runGame(Onitama(), new RandomBot[Onitama](), new SearchBot[Onitama](2))
+    println(result)
+    println(Console.show(game).mkString("\n"))
   }
 }
