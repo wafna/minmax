@@ -1,8 +1,8 @@
 package wafna.games
 package minmax
 
-import MinMax.{Eval, Evaluator}
 import wafna.games.Player.{P1, P2}
+import wafna.games.minmax.MinMax.{Eval, Evaluator}
 
 import scala.annotation.tailrec
 import scala.util.Random
@@ -20,15 +20,19 @@ object Arena {
     def move(game: G): Either[GameOver, Eval[G]]
   }
 
-  abstract class SearchBot[G](depth: Int)(implicit minMax: MinMax[G], listener: MinMax.Listener = MinMax.ListenerNoOp) extends Bot[G] {
+  abstract class SearchBot[G, L <: MinMax.Listener](depth: Int)(implicit
+    minMax: MinMax[G],
+    listener: L = MinMax.ListenerNoOp
+  ) extends Bot[G] {
+
     override def show(): String = s"Search($depth)"
-    override def move(game: G): Either[GameOver, Eval[G]] = {
-      MinMax.search(game, depth, evaluate)
-    }
+    override def move(game: G): Either[GameOver, Eval[G]] = MinMax.search(game, depth, evaluate)
     def evaluate(game: G, player: Player): Int
+
+    def getListener: L = listener
   }
 
-  class RandomBot[G]()(implicit minMax: MinMax[G], random: Random =  Random) extends Bot[G] {
+  class RandomBot[G]()(implicit minMax: MinMax[G], random: Random = Random) extends Bot[G] {
     override def show(): String = "Random"
     override def move(game: G): Either[GameOver, Eval[G]] = {
       minMax.moves(game).flatMap { moves =>

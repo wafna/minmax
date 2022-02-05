@@ -29,5 +29,9 @@ class OnitamaTest extends TestBase {
       // Pass card now in hand.
       assertResult(14)(moves.iterator.count(_.p1.contains(Horse)))
     }
+    "Game Over" in {
+      
+    }
   }
+  
 }

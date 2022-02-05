@@ -23,7 +23,7 @@ object OnitamaMinMax {
     }
   }
 
-  class OBot0(depth: Int)(implicit listener: MinMax.Listener = MinMax.ListenerNoOp) extends SearchBot[Onitama](depth) {
+  class OBot0[L <: MinMax.Listener](depth: Int)(implicit listener: L = MinMax.ListenerNoOp) extends SearchBot[Onitama, L](depth) {
 
     //noinspection ScalaStyle
     override def evaluate(game: Onitama, player: Player): Int = game.gameOver match {
@@ -54,24 +54,25 @@ object OnitamaMinMax {
         }
     }
   }
+  object OBot0 {
+    def apply[L <: MinMax.Listener](depth: Int, listener: L = MinMax.ListenerNoOp): OBot0[L] = {
+      implicit val q: L = listener
+      new OBot0(depth)
+    }
+  }
 
   def main(args: Array[String]): Unit = {
+
     implicit val random: Random = scala.util.Random
-    val stats1 = new MinMax.ListenerCounter
-    val stats2 = new MinMax.ListenerCounter
-    val p1 = {
-      implicit val stats = stats1
-      new OBot0(6)
-    }
-    val p2 = {
-      implicit val stats = stats2
-      new OBot0(6)
-    }
+
+    val p1 = OBot0(8, new MinMax.ListenerCounter)
+    val p2 = OBot0(8, new MinMax.ListenerCounter)
+
     val (result, games): (GameOver, List[Onitama]) = Arena.runGame(Onitama(), p1, p2)
     println(result)
     val turns = games.size
     games.zipWithIndex.foreach { case (game, turn) =>
-      println(s"-- Turn ${turns - turn}")
+      println(s"--- Turn ${turns - turn}")
       println(Console.show(game).mkString("\n"))
     }
     val g = games.head
@@ -83,7 +84,7 @@ object OnitamaMinMax {
     }.mkString("\n"))
     def showStats(stats: MinMax.Stats): String =
       s"searches = ${stats.searches}, evaluations = ${stats.evaluations}, prunes = ${stats.prunes}"
-    println(s"P1: ${showStats(stats1.stats())}")
-    println(s"P2: ${showStats(stats2.stats())}")
+    println(s"P1: ${showStats(p1.getListener.stats())}")
+    println(s"P2: ${showStats(p2.getListener.stats())}")
   }
 }
