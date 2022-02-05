@@ -2,6 +2,7 @@ package wafna.games.onitama
 
 import wafna.games.Player
 import wafna.games.Player.{P1, P2}
+import wafna.games.minmax.{GameOver, Win}
 
 import scala.collection.immutable.ArraySeq
 
@@ -35,6 +36,38 @@ class Board private (val spots: ArraySeq[Option[Piece]]) {
 
   def occupied(player: Player): IndexedSeq[Spot] =
     (0 until 25).filter(ix => spots(ix).exists(_.owner == player)).map(Spot.fromIx)
+
+  //noinspection ScalaStyle
+  val gameOver: Option[GameOver] = {
+    // Get each player's pieces.
+    val pieces: (List[Piece], List[Piece]) =
+      spots.foldLeft((List.empty[Piece], List.empty[Piece])) { (pieces, spot) =>
+        spot match {
+          case None => pieces
+          case Some(piece) =>
+            piece.owner match {
+              case P1 => (piece :: pieces._1, pieces._2)
+              case P2 => (pieces._1, piece :: pieces._2)
+            }
+        }
+      }
+    // Player has lost their King.
+    if (!pieces._1.exists(_.kind == King)) {
+      Some(Win(P2))
+    } else if (!pieces._2.exists(_.kind == King)) {
+      Some(Win(P1))
+    } else {
+      // Player has usurped the throne.
+      if (spot(Spot(2, 4)).contains(Piece(P1, King))) {
+        Some(Win(P1))
+      } else if (spot(Spot(2, 0)).contains(Piece(P2, King))) {
+        Some(Win(P2))
+      } else {
+        // Play on!
+        None
+      }
+    }
+  }
 }
 
 object Board {

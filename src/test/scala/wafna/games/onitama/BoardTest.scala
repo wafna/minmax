@@ -3,8 +3,13 @@ package onitama
 
 import wafna.TestBase
 import wafna.games.Player.{P1, P2}
+import wafna.games.minmax.Win
 
 class BoardTest extends TestBase {
+
+  implicit class MoveMustSucceed(result: Option[Board]) {
+    def insist(): Board = result.getOrElse(fail("Move must succeed."))
+  }
 
   "Board" should {
     "Start" in {
@@ -41,5 +46,18 @@ class BoardTest extends TestBase {
       board2.spot(Spot(0, 0)) shouldBe None
       board2.spot(Spot(0, 4)) shouldBe Some(Piece(P1, Pawn))
     }
+  }
+  "Game Over" in {
+    val board0 = Board()
+
+    val kingDeadP2 = board0.move(Spot(0, 0), Move(2, 4)).insist()
+    kingDeadP2.gameOver shouldBe Some(Win(P1))
+    val kingDeadP1 = board0.move(Spot(0, 4), Move(2, -4)).insist()
+    kingDeadP1.gameOver shouldBe Some(Win(P2))
+
+    val throneUsurpedP2 = board0.move(Spot(2, 4), Move(-1, -1)).insist().move(Spot(2, 0), Move(0, 4)).insist()
+    throneUsurpedP2.gameOver shouldBe Some(Win(P1))
+    val throneUsurpedP1 = board0.move(Spot(2, 0), Move(-1, 1)).insist().move(Spot(2, 4), Move(0, -4)).insist()
+    throneUsurpedP1.gameOver shouldBe Some(Win(P2))
   }
 }
