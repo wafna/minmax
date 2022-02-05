@@ -31,8 +31,6 @@ case class Piece(owner: Player, kind: Kind)
 // The direction of the pass indicates the player with turn in hand.
 class Onitama private (val p1: Hand, val p2: Hand, val pass: Either[Card, Card], val board: Board) {
 
-  def grid(): Iterator[Option[Piece]] = board.grid
-
   @throws[RuntimeException]("If the game is over, so don't ask.")
   def moves(): NonEmptyList[Onitama] = {
 
@@ -81,7 +79,7 @@ class Onitama private (val p1: Hand, val p2: Hand, val pass: Either[Card, Card],
   val gameOver: Option[GameOver] = {
     // Get each player's pieces.
     val pieces: (List[Piece], List[Piece]) =
-      grid().foldLeft((List.empty[Piece], List.empty[Piece])) { (pieces, spot) =>
+      board.spots.foldLeft((List.empty[Piece], List.empty[Piece])) { (pieces, spot) =>
         spot match {
           case None => pieces
           case Some(piece) =>
