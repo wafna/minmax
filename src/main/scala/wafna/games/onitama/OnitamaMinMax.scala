@@ -15,17 +15,6 @@ object OnitamaMinMax {
 
     override def currentPlayer(game: Onitama): Player = if (game.pass.isRight) P1 else P2
 
-    override def evaluate(game: Onitama, player: Player): Int = game.gameOver match {
-      case Some(Draw) =>
-        // Even if the player cannot move a piece the player must still exchange a card.
-        sys.error("Draw disallowed.")
-      case Some(Win(p)) => if (p == player) Int.MaxValue else Int.MinValue
-      case None =>
-        // todo worth favoring some early game optimizations?
-        //   more interestingly, should evaluate be supplied by each player?
-        0
-    }
-
     override def moves(game: Onitama): Either[GameOver, NonEmptyList[Onitama]] = game.gameOver match {
       case None =>
         Right(game.moves())
@@ -34,9 +23,22 @@ object OnitamaMinMax {
     }
   }
 
+  class OBot0(depth: Int) extends SearchBot[Onitama](depth) {
+    override def evaluate(game: Onitama, player: Player): Int = game.gameOver match {
+      case Some(Draw) =>
+        // Even if the player cannot move a piece the player must still exchange a card.
+        sys.error("Draw disallowed.")
+      case Some(Win(p)) =>
+        if (p == player) Int.MaxValue else Int.MinValue
+      case None =>
+        // todo worth favoring some early game optimizations?
+        0
+    }
+  }
+
   def main(args: Array[String]): Unit = {
     implicit val random: Random = scala.util.Random
-    val (result, games): (GameOver, List[Onitama]) = Arena.runGame(Onitama(), new SearchBot[Onitama](4), new SearchBot[Onitama](4))
+    val (result, games): (GameOver, List[Onitama]) = Arena.runGame(Onitama(), new OBot0(4), new OBot0(4))
     println(result)
     val turns = games.size
     games.zipWithIndex.foreach { case (game, turn) =>

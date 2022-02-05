@@ -12,10 +12,6 @@ trait MinMax[G] {
     */
   def currentPlayer(game: G): Player
 
-  /** An evaluation of a game state from the perspective of a player.
-    */
-  def evaluate(game: G, player: Player): Int
-
   /** Return a non-empty list of moves from a game state
     * or declare the game to be over.
     */
@@ -28,24 +24,28 @@ case class Win(player: Player) extends GameOver
 
 object MinMax {
 
+  class MinMaxError(msg: String) extends Exception(msg)
+  object MinMaxError {
+    def apply(msg: String): Nothing = throw new MinMaxError(msg)
+  }
+
   /** A game plus its valuation relative to the searching player. */
   final case class Eval[G](game: G, eval: Int)
 
-  private def selectBest[G](mm: Int, best: Option[Eval[G]], maybe: Eval[G]): Option[Eval[G]] =
+  @inline private def selectBest[G](mm: Int, best: Option[Eval[G]], maybe: Eval[G]): Option[Eval[G]] =
     if (best.exists(mm * _.eval > mm * maybe.eval)) {
       best
     } else {
       Some(maybe)
     }
 
-  class MinMaxError(msg: String) extends Exception(msg)
-  object MinMaxError {
-    def apply(msg: String): Nothing = throw new MinMaxError(msg)
-  }
+  type Evaluator[G] = (G, Player) => Int
 
   /** Search the current game to the specified depth for the best move.
     */
-  def search[G](game: G, maxDepth: Int)(implicit minMax: MinMax[G]): Either[GameOver, Eval[G]] = {
+  def search[G](game: G, maxDepth: Int, evaluator: Evaluator[G])(implicit
+    minMax: MinMax[G]
+  ): Either[GameOver, Eval[G]] = {
     require(0 < maxDepth, "maxDepth must be positive.")
     // This player is the player initiating the search, throughout.
     val searchingPlayer = minMax.currentPlayer(game)
@@ -54,19 +54,24 @@ object MinMax {
       .map {
         _.foldLeft(Option.empty[Eval[G]]) { (best, move) =>
           // prune with the current best value.
-          val eval: Int = searchPruned(game = move, searchingPlayer: Player, prune = best.map(_.eval), depth = maxDepth - 1)
+          val eval: Int = searchPruned(move, searchingPlayer, evaluator, prune = best.map(_.eval), depth = maxDepth - 1)
           // always maximizing at the top.
           selectBest(1, best, Eval(move, eval))
         }.getOrElse(MinMaxError(s"No moves!"))
       }
   }
+
   /** Below the first layer of search we may have a pruning value which we use to abort unfruitful searches.
     */
-  private def searchPruned[G](game: G, searchingPlayer: Player, prune: Option[Int], depth: Int)(implicit
-    minMax: MinMax[G]
-  ): Int = {
+  private def searchPruned[G](
+    game: G,
+    searchingPlayer: Player,
+    evaluator: Evaluator[G],
+    prune: Option[Int],
+    depth: Int
+  )(implicit minMax: MinMax[G]): Int = {
     if (0 == depth) {
-      minMax.evaluate(game, searchingPlayer)
+      evaluator(game, searchingPlayer)
     } else {
       // This flips the sense of inequalities used in finding best moves and pruning searches.
       val mm = if (minMax.currentPlayer(game) == searchingPlayer) 1 else -1
@@ -77,7 +82,7 @@ object MinMax {
           // We should have selected a best move by now.
           best.map(_.eval).getOrElse(MinMaxError(s"No moves!"))
         case m :: ms =>
-          val eval = searchPruned(m, searchingPlayer, best.map(_.eval), depth - 1)
+          val eval = searchPruned(m, searchingPlayer, evaluator, prune = best.map(_.eval), depth = depth - 1)
           if (prune.exists(p => mm * p < mm * eval)) {
             eval
           } else {

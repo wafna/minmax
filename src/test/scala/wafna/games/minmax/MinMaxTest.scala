@@ -13,7 +13,9 @@ class MinMaxTest extends TestBase {
 
   "MinMax" should {
     def testSearch(depth: Int)(expectedGameId: Either[GameOver, String])(game: Game): Assertion = {
-      MinMax.search(game, depth).map(_.game.id) shouldBe expectedGameId
+      def evaluate(game: Game, player: Player): Int =
+        game.eval.getOrElse(sys.error(s"Illegal evaluation at game '${game.id}''"))
+      MinMax.search(game, depth, evaluate).map(_.game.id) shouldBe expectedGameId
     }
     val bothWays: List[(Player, Player)] = List(P1 -> P2, P2 -> P1)
 
@@ -134,8 +136,6 @@ object MinMaxTest {
 
   implicit val gameTreeMinMax: MinMax[Game] = new MinMax[Game] {
     override def currentPlayer(game: Game): Player = game.player
-    override def evaluate(game: Game, player: Player): Int =
-      game.eval.getOrElse(sys.error(s"Illegal evaluation at game '${game.id}''"))
     override def moves(game: Game): Either[GameOver, NonEmptyList[Game]] =
       game.state
   }
