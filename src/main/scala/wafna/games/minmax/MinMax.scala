@@ -114,10 +114,12 @@ object MinMax {
         }
 
         minMax.moves(game) match {
-          case Left(Draw)        => 0
-          case Left(Win(winner)) => if (searchingPlayer == winner) Int.MaxValue else Int.MinValue
           case Right(moves) =>
             searchMoves(moves.toList, None)
+          case Left(gameOver) =>
+            val eval = evaluator(game, searchingPlayer)
+            listener.evaluate(eval)
+            eval
         }
       }
     }
