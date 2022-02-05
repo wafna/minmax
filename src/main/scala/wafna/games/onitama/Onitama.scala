@@ -47,9 +47,12 @@ class Onitama private (val p1: Hand, val p2: Hand, val pass: Either[Card, Card],
     def moveP2(hand: Hand, passCard: Card, board: Board) =
       new Onitama(p1, hand, Right(passCard), board)
 
-    val (player, hand, passCard, mover) = pass match {
-      case Right(c) => (P1, p1, c, moveP1 _)
-      case Left(c)  => (P2, p2, c, moveP2 _)
+    def flipP1(move: Move): Move = move
+    def flipP2(move: Move): Move = move.flip
+
+    val (player, hand, passCard, mover, flip) = pass match {
+      case Right(c) => (P1, p1, c, moveP1 _, flipP1)
+      case Left(c)  => (P2, p2, c, moveP2 _, flipP2)
     }
 
     val pieces = board.occupied(player)
@@ -61,7 +64,7 @@ class Onitama private (val p1: Hand, val p2: Hand, val pass: Either[Card, Card],
         (for {
           pawn <- pieces
           move <- card.moves.iterator
-        } yield board.move(pawn, move)).flatten
+        } yield board.move(pawn, flip(move))).flatten
           .map { board =>
             mover(handMoveSelected, card, board)
           }

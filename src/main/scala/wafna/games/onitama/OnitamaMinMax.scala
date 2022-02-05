@@ -6,7 +6,7 @@ import com.codahale.metrics.Snapshot
 import wafna.games.Player.{P1, P2}
 import wafna.games.minmax.*
 import wafna.games.minmax.Arena.*
-import wafna.games.minmax.MinMax.{Eval, MeterSnapshot}
+import wafna.games.minmax.MinMax.{Eval, MeterSnapshot, TimerSnapshot}
 
 import scala.util.Random
 
@@ -88,10 +88,14 @@ object OnitamaMinMax {
         }
         .mkString("\n")
     )
-    def showSnapshot(snapshot: MeterSnapshot): String =
+    def showMeterSnapshot(snapshot: MeterSnapshot): String =
       f"${snapshot.count} (${snapshot.meanRate}%.0f)"
+    def showTimerSnapshot(snapshot: TimerSnapshot): String =
+      f"${snapshot.count} (${snapshot.average})})"
     def showStats(stats: MinMax.Stats): String =
-      s"searches = ${showSnapshot(stats.searches)}, evaluations = ${showSnapshot(stats.evaluations)}, prunes = ${showSnapshot(stats.prunes)}"
+      s"""searches = ${showMeterSnapshot(stats.searches)}, evaluations = ${showTimerSnapshot(stats.evaluations)}
+         |  prunes = ${stats.prunes}, wins = ${stats.evalWins}, losses = ${stats.evalLosses}
+         |""".stripMargin
     println("----------------------")
     println(s"P1: ${showStats(p1.getListener.stats())}")
     println(s"P2: ${showStats(p2.getListener.stats())}")

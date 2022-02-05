@@ -1,9 +1,11 @@
 package wafna.games.minmax
 
 import cats.data.NonEmptyList
-import nl.grons.metrics4.scala.{DefaultInstrumented, Meter}
+import nl.grons.metrics4.scala.{Counter, DefaultInstrumented, Meter, Timer}
 import wafna.games.Player
 
+import java.time.Instant
+import java.util.concurrent.TimeUnit
 import scala.annotation.tailrec
 
 /** Type class of MinMax games. */
@@ -35,35 +37,64 @@ object MinMax {
 
     def search(depth: Int): Unit
     def prune(): Unit
-    def evaluate(eval: Int): Unit
+    def evaluate(eval: => Int): Int = eval
   }
 
   object ListenerNoOp extends Listener {
 
     override def search(depth: Int): Unit = ()
     override def prune(): Unit = ()
-    override def evaluate(eval: Int): Unit = ()
+    override def evaluate(eval: => Int): Int = eval
   }
 
   case class MeterSnapshot(count: Long, meanRate: Double)
-
   object MeterSnapshot {
     def apply(meter: Meter): MeterSnapshot =
       MeterSnapshot(meter.count, meter.meanRate)
   }
 
-  case class Stats(searches: MeterSnapshot, prunes: MeterSnapshot, evaluations: MeterSnapshot)
+  case class TimerSnapshot(count: Long, average: Double, rate: Double)
+  object TimerSnapshot {
+    def apply(timer: Timer): TimerSnapshot =
+      TimerSnapshot(timer.count, timer.mean, timer.meanRate)
+  }
+
+  case class Stats(
+    searches: MeterSnapshot,
+    evaluations: TimerSnapshot,
+    prunes: Long,
+    evalWins: Long,
+    evalLosses: Long
+  )
 
   class ListenerCounter(name: String) extends Listener with DefaultInstrumented {
     private val searches = metrics.meter(s"searches-$name")
-    private val prunes = metrics.meter(s"prunes-$name")
-    private val evaluations = metrics.meter(s"evaluations-$name")
+    private val evaluations = metrics.timer(s"evaluations-$name")
+    private val prunes = metrics.counter(s"prunes-$name")
+    private val evalWins = metrics.counter(s"eval-wins-$name")
+    private val evalLosses = metrics.counter(s"eval-losses-$name")
 
     override def search(depth: Int): Unit = searches.mark()
-    override def prune(): Unit = prunes.mark()
-    override def evaluate(eval: Int): Unit = evaluations.mark()
+    override def evaluate(eval: => Int): Int = {
+      val now = System.currentTimeMillis()
+      val v = eval
+      if (v == Int.MinValue) {
+        evalLosses.inc()
+      } else if (v == Int.MaxValue) {
+        evalWins.inc()
+      }
+      evaluations.update(now - System.currentTimeMillis(), TimeUnit.MILLISECONDS)
+      v
+    }
+    override def prune(): Unit = prunes.inc()
 
-    def stats(): Stats = Stats(MeterSnapshot(searches), MeterSnapshot(prunes), MeterSnapshot(evaluations))
+    def stats(): Stats = Stats(
+      MeterSnapshot(searches),
+      TimerSnapshot(evaluations),
+      prunes.count,
+      evalWins.count,
+      evalLosses.count
+    )
   }
 
   /** A game plus its valuation relative to the searching player. */
@@ -97,9 +128,7 @@ object MinMax {
     ): Int = {
 
       if (0 == depth) {
-        val eval = evaluator(game, searchingPlayer)
-        listener.evaluate(eval)
-        eval
+        listener.evaluate(evaluator(game, searchingPlayer))
       } else {
         listener.search(maxDepth - depth)
         // This flips the sense of inequalities used in finding best moves and pruning searches.
@@ -125,9 +154,7 @@ object MinMax {
           case Right(moves) =>
             searchMoves(moves.toList, None)
           case Left(gameOver) =>
-            val eval = evaluator(game, searchingPlayer)
-            listener.evaluate(eval)
-            eval
+            listener.evaluate(evaluator(game, searchingPlayer))
         }
       }
     }

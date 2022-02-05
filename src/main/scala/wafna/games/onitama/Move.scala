@@ -6,7 +6,9 @@ import cats.data.NonEmptyList
 import scala.collection.immutable.ArraySeq
 import scala.util.Random
 
-final case class Move(x: Int, y: Int)
+final case class Move(x: Int, y: Int) {
+  @inline def flip: Move = Move(-1 * x, -1 * y)
+}
 
 case class Card(name: String, moves: NonEmptyList[Move])
 
