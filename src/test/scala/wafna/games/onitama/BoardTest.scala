@@ -21,6 +21,11 @@ class BoardTest extends TestBase {
         }
       }
     }
+    "Find pieces" in {
+      val board0 = Board()
+      board0.occupied(P1).size shouldBe 5
+      board0.occupied(P2).size shouldBe 5
+    }
     "Move" in {
       val board0 = Board()
       // move to open square

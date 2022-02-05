@@ -2,14 +2,16 @@ package wafna.games
 package onitama
 
 import cats.data.NonEmptyList
-import wafna.games.minmax.{GameOver, Win}
 import wafna.games.Player
 import wafna.games.Player.{P1, P2}
+import wafna.games.minmax.{GameOver, Win}
 
 import scala.util.Random
 import scala.util.chaining.*
 
 case class Hand(c1: Card, c2: Card) {
+
+  @throws[IllegalArgumentException]("If the out card is not in hand.")
   def cycle(out: Card, in: Card): Hand = {
     if (c1 == out) { Hand(in, c2) }
     else if (c2 == out) { Hand(c1, in) }
@@ -49,20 +51,29 @@ class Onitama private (val p1: Hand, val p2: Hand, val pass: Either[Card, Card],
       case Left(c)  => (P2, p2, c, moveP2 _)
     }
 
-    val pawns = board.occupied(player)
+    val pieces = board.occupied(player)
+
     hand.toNel.flatMap { card =>
-      val hand1 = hand.cycle(card, passCard)
-      val moves = (for {
-        pawn <- pawns
-        move <- card.moves.iterator
-      } yield board.move(pawn, move)).flatten
-      moves.map { move =>
-        mover(hand1, card, move)
-      }.toList match {
-        case Nil =>
-          ???
-        case head :: tail => NonEmptyList(head, tail)
+      val handMoveSelected = hand.cycle(card, passCard)
+
+      val allMovesForCard: Seq[Onitama] = {
+        (for {
+          pawn <- pieces
+          move <- card.moves.iterator
+        } yield board.move(pawn, move)).flatten
+          .map { board =>
+            mover(handMoveSelected, card, board)
+          }
       }
+
+      NonEmptyList
+        .fromFoldable(allMovesForCard)
+        .getOrElse {
+          // In this manner, each card in the hand becomes a move in its own right,
+          // not affecting the state of the board, though.
+          // This may lead to infinite sequences of passing. Hmm.
+          NonEmptyList.one(mover(handMoveSelected, card, board))
+        }
     }
   }
 
