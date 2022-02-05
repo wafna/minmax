@@ -44,7 +44,6 @@ object MinMax {
   }
 
   /** Search the current game to the specified depth for the best move.
-    * @return None if there are no moves, perhaps there's a winner?
     */
   def search[G](game: G, maxDepth: Int)(implicit minMax: MinMax[G]): Either[GameOver, Eval[G]] = {
     require(0 < maxDepth, "maxDepth must be positive.")
