@@ -28,8 +28,9 @@ case object King extends Kind
 
 case class Piece(owner: Player, kind: Kind)
 
-// The direction of the pass indicates the player with turn in hand.
 class Onitama private (val p1: Hand, val p2: Hand, val pass: Either[Card, Card], val board: Board) {
+
+  val currentPlayer: Player = if (pass.isRight) P1 else P2
 
   @throws[RuntimeException]("If the game is over, so don't ask.")
   def moves(): NonEmptyList[Onitama] = {
