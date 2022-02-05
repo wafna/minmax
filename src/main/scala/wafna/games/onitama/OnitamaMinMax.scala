@@ -34,8 +34,10 @@ object OnitamaMinMax {
 
   def main(args: Array[String]): Unit = {
     implicit val random: Random = scala.util.Random
-    val (result, game): (GameOver, Onitama) = Arena.runGame(Onitama(), new RandomBot[Onitama](), new SearchBot[Onitama](2))
+    val (result, games): (GameOver, List[Onitama]) = Arena.runGame(Onitama(), new RandomBot[Onitama](), new SearchBot[Onitama](2))
     println(result)
-    println(Console.show(game).mkString("\n"))
+    games.foreach { game =>
+      println(Console.show(game).mkString("\n"))
+    }
   }
 }

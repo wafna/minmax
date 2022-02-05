@@ -37,24 +37,24 @@ object Arena {
     }
   }
 
-  def runGame[G](game: G, p1: Bot[G], p2: Bot[G])(implicit minMax: MinMax[G]): (GameOver, G) = {
+  def runGame[G](game: G, p1: Bot[G], p2: Bot[G])(implicit minMax: MinMax[G]): (GameOver, List[G]) = {
     @tailrec
-    def runPlayer(game: G, bots: LazyList[Bot[G]])(implicit minMax: MinMax[G]): (GameOver, G) = {
+    def runPlayer(game: G, bots: LazyList[Bot[G]], moves: List[G])(implicit minMax: MinMax[G]): (GameOver, List[G]) = {
       bots.head.move(game) match {
         case Left(gameOver) =>
-          (gameOver, game)
+          (gameOver, game :: moves)
         case Right(move) =>
-          runPlayer(move.game, bots.tail)
+          runPlayer(move.game, bots.tail, game :: moves)
       }
     }
-    runPlayer(game, LazyList.continually(Seq(p1, p2)).flatten)
+    runPlayer(game, LazyList.continually(Seq(p1, p2)).flatten, Nil)
   }
 
   case class Match(p1: String, p2: String, wins1: Int, wins2: Int, draws: Int)
 
   def runMatch[G](game: G, p1: Bot[G], p2: Bot[G], games: Int)(implicit minMax: MinMax[G]): Match = {
     require(0 < games)
-    def keepScore(result: (GameOver, G)): (Int, Int, Int) = {
+    def keepScore(result: (GameOver, List[G])): (Int, Int, Int) = {
       result match {
         case (Draw, _) => (0, 0, 1)
         case (Win(winner), _) =>
