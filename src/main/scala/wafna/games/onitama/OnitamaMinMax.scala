@@ -65,8 +65,8 @@ object OnitamaMinMax {
 
     implicit val random: Random = scala.util.Random
 
-    val p1 = OBot0(8, new MinMax.ListenerCounter)
-    val p2 = OBot0(8, new MinMax.ListenerCounter)
+    val p1 = OBot0(6, new MinMax.ListenerCounter)
+    val p2 = OBot0(6, new MinMax.ListenerCounter)
 
     val (result, games): (GameOver, List[Onitama]) = Arena.runGame(Onitama(), p1, p2)
     println(result)
@@ -78,12 +78,12 @@ object OnitamaMinMax {
     val g = games.head
     val cards: List[Card] = g.p1.toNel.toList ++ g.p2.toNel.toList ++ List(g.pass.getOrElse(g.pass.swap.toOption.get))
     println("----------------------")
-//    cards.foreach(card => println(Console.show(card).mkString("\n")))
     println(cards.map(Console.show).foldLeft(List.fill(6)("")) { (s, c) =>
       s.zip(c).map(p => p._1 ++ "%1$-9s".format(p._2))
     }.mkString("\n"))
     def showStats(stats: MinMax.Stats): String =
       s"searches = ${stats.searches}, evaluations = ${stats.evaluations}, prunes = ${stats.prunes}"
+    println("----------------------")
     println(s"P1: ${showStats(p1.getListener.stats())}")
     println(s"P2: ${showStats(p2.getListener.stats())}")
   }
