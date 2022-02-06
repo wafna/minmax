@@ -28,12 +28,18 @@ object Console {
 
   implicit val boardPrinter: Printer[ArraySeq[Option[Piece]]] = new Printer[ArraySeq[Option[Piece]]] {
 
+    //noinspection ScalaStyle
     def getLines(board: ArraySeq[Option[Piece]]): List[String] = {
       val grid = Array.fill(25)(' ')
       board.zipWithIndex.foreach { case (s, i) =>
         s match {
-          case None => // ignore
-            grid(i) = '.'
+          case None =>
+            val spot = Spot.fromIx(i)
+            if (spot.x == 2 && (spot.y == 0 || spot.y == 4)) {
+              grid(i) = '-'
+            } else {
+              grid(i) = '.'
+            }
           case Some(piece) =>
             piece match {
               case Piece(P1, Pawn) => grid(i) = 'x'
