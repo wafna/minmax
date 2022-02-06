@@ -2,9 +2,6 @@ package wafna
 package games
 package onitama
 
-import wafna.games.Player.{P1, P2}
-import wafna.games.minmax.Win
-
 class BoardTest extends TestBase {
 
   implicit class MoveMustSucceed(result: Option[Board]) {

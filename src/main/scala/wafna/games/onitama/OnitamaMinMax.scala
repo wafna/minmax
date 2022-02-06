@@ -3,7 +3,6 @@ package onitama
 
 import cats.data.NonEmptyList
 import com.codahale.metrics.Snapshot
-import wafna.games.Player.{P1, P2}
 import wafna.games.minmax.*
 import wafna.games.minmax.Arena.*
 import wafna.games.minmax.MinMax.{Eval, MeterSnapshot, TimerSnapshot}

@@ -10,12 +10,14 @@ package object games {
   sealed trait Player {
     def opponent: Player
   }
-  object Player {
-    case object P1 extends Player {
-      def opponent: Player = P2
-    }
-    case object P2 extends Player {
-      def opponent: Player = P1
-    }
+  case object P1 extends Player {
+    def opponent: Player = P2
   }
+  case object P2 extends Player {
+    def opponent: Player = P1
+  }
+
+  sealed trait GameOver
+  case object Draw extends GameOver
+  final case class Win(player: Player) extends GameOver
 }

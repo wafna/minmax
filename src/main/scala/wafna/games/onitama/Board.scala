@@ -1,8 +1,5 @@
-package wafna.games.onitama
-
-import wafna.games.Player
-import wafna.games.Player.{P1, P2}
-import wafna.games.minmax.{GameOver, Win}
+package wafna.games
+package onitama
 
 import scala.collection.immutable.ArraySeq
 

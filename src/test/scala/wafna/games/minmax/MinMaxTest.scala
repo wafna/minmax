@@ -4,7 +4,6 @@ package minmax
 
 import cats.data.NonEmptyList
 import org.scalatest.Assertion
-import wafna.games.Player.{P1, P2}
 
 class MinMaxTest extends TestBase {
 

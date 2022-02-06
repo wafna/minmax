@@ -1,4 +1,5 @@
-package wafna.games.minmax
+package wafna.games
+package minmax
 
 import cats.data.NonEmptyList
 import nl.grons.metrics4.scala.{Counter, DefaultInstrumented, Meter, Timer}
@@ -20,10 +21,6 @@ trait MinMax[G] {
     */
   def moves(game: G): Either[GameOver, NonEmptyList[G]]
 }
-
-sealed trait GameOver
-case object Draw extends GameOver
-case class Win(player: Player) extends GameOver
 
 object MinMax {
 

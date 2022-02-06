@@ -1,7 +1,6 @@
 package wafna.games
 package minmax
 
-import wafna.games.Player.{P1, P2}
 import wafna.games.minmax.MinMax.{Eval, Evaluator}
 
 import scala.annotation.tailrec

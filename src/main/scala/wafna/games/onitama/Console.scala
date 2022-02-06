@@ -1,6 +1,5 @@
-package wafna.games.onitama
-
-import wafna.games.Player.{P1, P2}
+package wafna.games
+package onitama
 
 import scala.collection.immutable.ArraySeq
 
