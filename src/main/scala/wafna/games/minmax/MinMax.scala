@@ -138,7 +138,7 @@ object MinMax {
             best.map(_.eval).getOrElse(MinMaxError(s"No moves!"))
           case m :: ms =>
             val eval = searchPruned(m, prune = best.map(_.eval), depth = depth - 1)
-            if (prune.exists(p => mm * p < mm * eval)) {
+            if (prune.exists(mm * _ < mm * eval)) {
               listener.prune()
               eval
             } else {

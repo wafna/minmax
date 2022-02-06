@@ -51,11 +51,11 @@ class MinMaxTest extends TestBase {
     }
     "prune the tree" in {
       bothWays.foreach { case (p1, p2) =>
-        testSearch(2)(Right("1")) {
+        testSearch(2)(Right("1-1")) {
           // format: off
           Game("1", None, p1, Right(nonEmptyList(
-            Game("1", None, p2, Right(nonEmptyList(
-              Game("1", Some(-1), p1)
+            Game("1-1", None, p2, Right(nonEmptyList(
+              Game("1-1-1", Some(-1), p1)
             ))),
             Game("2", None, p2, Right(nonEmptyList(
               Game("2-1", Some(0), p1),
