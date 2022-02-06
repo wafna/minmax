@@ -2,6 +2,8 @@ package wafna
 package games
 package onitama
 
+import wafna.games.onitama.Deck.{Crab, Eel, Rabbit, Rooster, Tiger}
+
 class Scenario1Test extends TestBase {
   "Scenario 1" should {
     /*
@@ -28,7 +30,9 @@ class Scenario1Test extends TestBase {
     X (P1) can use Eel to kill O's (P2) king and win.
 
     */
-    "X to win in one move" in {
+    "P1 to win in one move" in {
+      val g = new Onitama(Hand(Tiger, Eel), Hand(Rabbit, Crab), Right(Rooster), Board())
+      assertResult(P1)(g.currentPlayer)
     }
   }
 }
