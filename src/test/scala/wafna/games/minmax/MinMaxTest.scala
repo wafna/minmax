@@ -10,10 +10,10 @@ class MinMaxTest extends TestBase {
   import wafna.games.minmax.MinMaxTest._
 
   "MinMax" should {
-    def testSearch(depth: Int)(expectedGameId: Either[GameOver, String])(game: Game): Assertion = {
+    def testSearch(depth: Int)(expectedGameId: Either[GameOver, (String, Int)])(game: Game): Assertion = {
       def evaluate(game: Game, player: Player): Int =
         game.eval.getOrElse(sys.error(s"Illegal evaluation at game '${game.id}''"))
-      MinMax.search(game, depth, evaluate).map(_.game.id) shouldBe expectedGameId
+      MinMax.search(game, depth, evaluate).map(e => e.game.id -> e.eval) shouldBe expectedGameId
     }
     val bothWays: List[(Player, Player)] = List(P1 -> P2, P2 -> P1)
 
@@ -26,7 +26,7 @@ class MinMaxTest extends TestBase {
     }
     "select the best move" in {
       bothWays.foreach { case (p1, p2) =>
-        testSearch(1)(Right("2")) {
+        testSearch(1)(Right("2" -> 1)) {
           // format: off
         Game("0", None, p1, Right(nonEmptyList(
           Game("1", Some(0), p2),
@@ -37,7 +37,7 @@ class MinMaxTest extends TestBase {
         }
       }
       bothWays.foreach { case (p1, p2) =>
-        testSearch(1)(Right("4")) {
+        testSearch(1)(Right("4" -> 2)) {
           // format: off
         Game("0", None, p1, Right(nonEmptyList(
           Game("1", Some(0), p2),
@@ -51,9 +51,9 @@ class MinMaxTest extends TestBase {
     }
     "prune the tree" in {
       bothWays.foreach { case (p1, p2) =>
-        testSearch(2)(Right("1-1")) {
+        testSearch(2)(Right("1-1" -> -1)) {
           // format: off
-          Game("1", None, p1, Right(nonEmptyList(
+          Game("0", None, p1, Right(nonEmptyList(
             Game("1-1", None, p2, Right(nonEmptyList(
               Game("1-1-1", Some(-1), p1)
             ))),
@@ -69,9 +69,9 @@ class MinMaxTest extends TestBase {
     }
     "evaluate early" in {
       bothWays.foreach { case (p1, p2) =>
-        testSearch(2)(Right("1")) {
+        testSearch(2)(Right("1" -> -1)) {
           // format: off
-          Game("1", None, p1, Right(nonEmptyList(
+          Game("0", None, p1, Right(nonEmptyList(
             Game("1", Some(-1), p2),
             Game("2", None, p2, Right(nonEmptyList(
               Game("2-1", Some(0), p1),
@@ -85,9 +85,9 @@ class MinMaxTest extends TestBase {
     }
     "evaluates to max depth only" in {
       bothWays.foreach { case (p1, p2) =>
-        testSearch(2)(Right("1")) {
+        testSearch(2)(Right("1" -> 0)) {
           // format: off
-          Game("1", None, p1, Right(nonEmptyList(
+          Game("0", None, p1, Right(nonEmptyList(
             Game("1", None, p2, Right(nonEmptyList(
               Game("1-1", Some(0), p1, Right(nonEmptyList(
                 Game("do_not_evaluate", None, p2, Left(Draw))
@@ -100,11 +100,11 @@ class MinMaxTest extends TestBase {
     }
     "depth 2 something" in {
       bothWays.foreach { case (p1, p2) =>
-        testSearch(2)(Right("2")) {
+        testSearch(2)(Right("2" -> 2)) {
           // format: off
-          Game("1", None, p1, Right(nonEmptyList(
+          Game("0", None, p1, Right(nonEmptyList(
             Game("1", None, p2, Right(nonEmptyList(
-              Game("1-1", Some(-1), p1, Left(Win(p2))),
+              Game("1-1", Some(-100), p1, Left(Win(p2))),
               Game("1-2", Some(0), p1, Left(Draw))
             ))),
             Game("2", None, p2, Right(nonEmptyList(
