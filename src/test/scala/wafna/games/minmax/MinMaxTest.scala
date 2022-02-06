@@ -1,10 +1,9 @@
-package wafna.games
+package wafna
+package games
 package minmax
 
 import cats.data.NonEmptyList
 import org.scalatest.Assertion
-import wafna.TestBase
-import wafna.games.minmax.{Draw, GameOver, MinMax, Win}
 import wafna.games.Player.{P1, P2}
 
 class MinMaxTest extends TestBase {

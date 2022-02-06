@@ -1,6 +1,7 @@
-package wafna.games.onitama
+package wafna
+package games
+package onitama
 
-import wafna.TestBase
 import wafna.games.onitama.Deck._
 
 class OnitamaTest extends TestBase {

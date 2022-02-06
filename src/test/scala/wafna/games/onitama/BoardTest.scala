@@ -1,7 +1,7 @@
-package wafna.games
+package wafna
+package games
 package onitama
 
-import wafna.TestBase
 import wafna.games.Player.{P1, P2}
 import wafna.games.minmax.Win
 
