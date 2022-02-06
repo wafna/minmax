@@ -20,6 +20,15 @@ object Arena {
     def move(game: G): Either[GameOver, Eval[G]]
   }
 
+  class RandomBot[G]()(implicit minMax: MinMax[G], random: Random = Random) extends Bot[G] {
+    override def show(): String = "Random"
+    override def move(game: G): Either[GameOver, Eval[G]] = {
+      minMax.moves(game).flatMap { moves =>
+        Right(Eval(moves.toList(new Random().nextInt(moves.length)), 0))
+      }
+    }
+  }
+
   abstract class SearchBot[G, L <: MinMax.Listener](depth: Int)(implicit
     minMax: MinMax[G],
     listener: L = MinMax.ListenerNoOp
@@ -32,22 +41,24 @@ object Arena {
     def getListener: L = listener
   }
 
-  class RandomBot[G]()(implicit minMax: MinMax[G], random: Random = Random) extends Bot[G] {
-    override def show(): String = "Random"
-    override def move(game: G): Either[GameOver, Eval[G]] = {
-      minMax.moves(game).flatMap { moves =>
-        Right(Eval(moves.toList(new Random().nextInt(moves.length)), 0))
-      }
-    }
+  trait GameListener[G] {
+    def move(games: List[G]): Unit
+  }
+  class GameListenerNoOp[G] extends GameListener[G] {
+    def move(games: List[G]): Unit = ()
   }
 
-  def runGame[G](game: G, p1: Bot[G], p2: Bot[G])(implicit minMax: MinMax[G]): (GameOver, List[G]) = {
+  def runGame[G](game: G, p1: Bot[G], p2: Bot[G])(implicit
+    minMax: MinMax[G],
+    gameListener: GameListener[G] = new GameListenerNoOp[G]
+  ): (GameOver, List[G]) = {
     @tailrec
     def runPlayer(game: G, bots: LazyList[Bot[G]], moves: List[G])(implicit minMax: MinMax[G]): (GameOver, List[G]) = {
       bots.head.move(game) match {
         case Left(gameOver) =>
           (gameOver, game :: moves)
         case Right(move) =>
+          gameListener.move(game :: moves)
           runPlayer(move.game, bots.tail, game :: moves)
       }
     }

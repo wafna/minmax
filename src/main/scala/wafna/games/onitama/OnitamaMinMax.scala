@@ -70,13 +70,21 @@ object OnitamaMinMax {
     val p1 = OBot0(6, new MinMax.ListenerCounter("p1"))
     val p2 = OBot0(6, new MinMax.ListenerCounter("p2"))
 
+    implicit val gameListener: Arena.GameListener[Onitama] = new GameListener[Onitama] {
+      override def move(games: List[Onitama]): Unit = {
+        println("----------------------")
+        println(s"--- Turn ${games.size}")
+        println(Console.show(games.head).mkString("\n"))
+
+      }
+    }
     val (result, games): (GameOver, List[Onitama]) = Arena.runGame(Onitama(), p1, p2)
     println(result)
-    val turns = games.size
-    games.zipWithIndex.foreach { case (game, turn) =>
-      println(s"--- Turn ${turns - turn}")
-      println(Console.show(game).mkString("\n"))
-    }
+//    val turns = games.size
+//    games.zipWithIndex.foreach { case (game, turn) =>
+//      println(s"--- Turn ${turns - turn}")
+//      println(Console.show(game).mkString("\n"))
+//    }
     val g = games.head
     val cards: List[Card] = g.p1.toNel.toList ++ g.p2.toNel.toList ++ List(g.pass.getOrElse(g.pass.swap.toOption.get))
     println("----------------------")
@@ -91,7 +99,7 @@ object OnitamaMinMax {
     def showMeterSnapshot(snapshot: MeterSnapshot): String =
       f"${snapshot.count} (${snapshot.meanRate}%.0f)"
     def showTimerSnapshot(snapshot: TimerSnapshot): String =
-      f"${snapshot.count} (${snapshot.average})})"
+      f"${snapshot.count} (${snapshot.average})"
     def showStats(stats: MinMax.Stats): String =
       s"""searches = ${showMeterSnapshot(stats.searches)}, evaluations = ${showTimerSnapshot(stats.evaluations)}
          |  prunes = ${stats.prunes}, wins = ${stats.evalWins}, losses = ${stats.evalLosses}
