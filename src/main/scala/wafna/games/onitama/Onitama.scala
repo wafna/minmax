@@ -25,10 +25,10 @@ case object King extends Kind
 
 case class Piece(owner: Player, kind: Kind)
 
-class Onitama private (val p1: Hand, val p2: Hand, val pass: Either[Card, Card], val board: Board) {
+class Onitama private[onitama] (val p1: Hand, val p2: Hand, val pass: Either[Card, Card], val board: Board) {
 
   val currentPlayer: Player = if (pass.isRight) P1 else P2
-  
+
   val gameOver: Option[GameOver] = board.gameOver
 
   @throws[RuntimeException]("If the game is over, so don't ask.")
