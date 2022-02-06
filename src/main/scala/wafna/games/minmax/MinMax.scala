@@ -119,7 +119,7 @@ object MinMax {
 
     /** Below the first layer of search we may have a pruning value which we use to abort unfruitful searches.
       */
-    def searchPruned[G](game: G, evaluator: Evaluator[G], prune: Option[Int], depth: Int)(implicit
+    def searchPruned(game: G, prune: Option[Int], depth: Int)(implicit
       minMax: MinMax[G],
       listener: Listener
     ): Int = {
@@ -137,7 +137,7 @@ object MinMax {
             // We should have selected a best move by now.
             best.map(_.eval).getOrElse(MinMaxError(s"No moves!"))
           case m :: ms =>
-            val eval = searchPruned(m, evaluator, prune = best.map(_.eval), depth = depth - 1)
+            val eval = searchPruned(m, prune = best.map(_.eval), depth = depth - 1)
             if (prune.exists(p => mm * p < mm * eval)) {
               listener.prune()
               eval
@@ -161,7 +161,7 @@ object MinMax {
       .map {
         _.foldLeft(Option.empty[Eval[G]]) { (best, move) =>
           // prune with the current best value.
-          val eval: Int = searchPruned(move, evaluator, prune = best.map(_.eval), depth = maxDepth - 1)
+          val eval = searchPruned(move, prune = best.map(_.eval), depth = maxDepth - 1)
           // always maximizing at the top.
           selectBest(1, best, Eval(move, eval))
         }.getOrElse(MinMaxError(s"No moves!"))

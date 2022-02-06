@@ -2,7 +2,9 @@ package wafna
 package games
 package onitama
 
+import wafna.games.minmax.MinMax
 import wafna.games.onitama.Deck.*
+import wafna.games.onitama.OnitamaMinMax.*
 
 import scala.collection.immutable.ArraySeq
 
@@ -33,7 +35,7 @@ class Scenario1Test extends TestBase {
 
      */
     "P1 to win in one move" in {
-      val g = new Onitama(
+      val g0 = new Onitama(
         Hand(Tiger, Eel),
         Hand(Rabbit, Crab),
         Right(Rooster),
@@ -67,7 +69,38 @@ class Scenario1Test extends TestBase {
           )
         )
       )
-      assertResult(P1)(g.currentPlayer)
+
+      assertResult(P1)(g0.currentPlayer)
+
+      def evaluate(game: Onitama, player: Player): Int = game.gameOver match {
+        case Some(Draw) =>
+          // Even if the player cannot move a piece the player must still exchange a card.
+          sys.error("Draw disallowed.")
+
+        case Some(Win(p)) =>
+          if (p == player) Int.MaxValue else Int.MinValue
+
+        case None =>
+          0
+      }
+      // [2022-2-6] Works at depth 4, fails at depth 5!
+      val result: Either[GameOver, MinMax.Eval[Onitama]] = {
+        MinMax.search(g0, 5, evaluate)
+      }
+      result match {
+
+        case Left(_) =>
+          fail("Game is over.")
+
+        case Right(eval) =>
+
+          val gf = eval.game
+
+          // P1 has won.
+          gf.gameOver shouldBe Some(Win(P1))
+          // By using Eel to take P2's King.
+          gf.pass shouldBe Left(Eel)
+      }
     }
   }
 }
