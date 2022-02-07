@@ -58,7 +58,7 @@ object Console {
       List(
         s"P1: ${game.p1.toNel.map(_.name).toList.mkString(", ")}",
         s"P2: ${game.p2.toNel.map(_.name).toList.mkString(", ")}",
-        s"Turn: ${game.turnInHand.player} ${game.turnInHand.card}",
+        s"Turn: ${game.turnInHand.player} ${game.turnInHand.card.name}",
         s"State: ${game.gameOver}"
       ) ++ show(game.board.spots)
   }
