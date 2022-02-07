@@ -87,7 +87,7 @@ object OnitamaMinMax {
     implicit val random: Random = scala.util.Random
 
     val p1 = OBot0(6, new MinMax.ListenerCounter("p1"))
-    val p2 = OBot1(6, new MinMax.ListenerCounter("p2"))
+    val p2 = OBot0(6, new MinMax.ListenerCounter("p2"))
 
     implicit val gameListener: Arena.GameListener[Onitama] = new GameListener[Onitama] {
       override def move(games: List[Onitama]): Unit = {

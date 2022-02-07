@@ -41,11 +41,11 @@ class Scenario1Test extends TestBase {
         Right(Rooster),
         new Board(
           ArraySeq(
-            Some(Piece(P2, Pawn)),
-            Some(Piece(P2, Pawn)),
+            None, // Some(Piece(P2, Pawn)),
+            None, // Some(Piece(P2, Pawn)),
             None,
-            Some(Piece(P2, Pawn)),
-            Some(Piece(P2, Pawn)),
+            None, // Some(Piece(P2, Pawn)),
+            None, // Some(Piece(P2, Pawn)),
             None,
             None,
             None,
@@ -60,11 +60,11 @@ class Scenario1Test extends TestBase {
             None,
             None,
             Some(Piece(P1, King)),
-            Some(Piece(P1, Pawn)),
-            Some(Piece(P1, Pawn)),
-            Some(Piece(P1, Pawn)),
+            None, // Some(Piece(P1, Pawn)),
+            None, // Some(Piece(P1, Pawn)),
+            None, // Some(Piece(P1, Pawn)),
             None,
-            Some(Piece(P1, Pawn)),
+            None, // Some(Piece(P1, Pawn)),
             None
           )
         )
