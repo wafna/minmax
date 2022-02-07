@@ -164,6 +164,24 @@ class MinMaxTest extends TestBase {
         }
       }
     }
+    "avoid losing" in {
+      bothWays.foreach { case (p1, p2) =>
+        // format: off
+        val g1 = Game("1", p2, Moves(
+          Game("1-1", p1, Moves(Win(p2)))
+        ))
+        val g2 = Game("2", p2, Moves(
+          Game("2-1", p1, Moves(Draw))
+        ))
+        // format: on
+        testSearch(3)(Right("2" -> 0)) {
+          Game("0", p1, Moves(g1, g2))
+        }
+        testSearch(3)(Right("2" -> 0)) {
+          Game("0", p1, Moves(g2, g1))
+        }
+      }
+    }
   }
 }
 
