@@ -42,7 +42,7 @@ class Scenario1Test extends TestBase {
         new Board(
           ArraySeq(
             None, // Some(Piece(P2, Pawn)),
-            None, // Some(Piece(P2, Pawn)),
+            Some(Piece(P2, Pawn)),
             None,
             None, // Some(Piece(P2, Pawn)),
             None, // Some(Piece(P2, Pawn)),
@@ -61,7 +61,7 @@ class Scenario1Test extends TestBase {
             None,
             Some(Piece(P1, King)),
             None, // Some(Piece(P1, Pawn)),
-            None, // Some(Piece(P1, Pawn)),
+            Some(Piece(P1, Pawn)),
             None, // Some(Piece(P1, Pawn)),
             None,
             None, // Some(Piece(P1, Pawn)),
@@ -84,6 +84,7 @@ class Scenario1Test extends TestBase {
           0
       }
       // [2022-2-6] Works at depth 4, fails at depth 5!
+      // also fails if there is at least one of either player's pawns.
       val result: Either[GameOver, MinMax.Eval[Onitama]] = {
         MinMax.search(g0, 5, evaluate)
       }
