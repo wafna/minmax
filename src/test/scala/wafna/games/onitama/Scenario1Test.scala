@@ -10,63 +10,18 @@ import scala.collection.immutable.ArraySeq
 
 class Scenario1Test extends TestBase {
   "Scenario 1" should {
-    /*
-      This is the scene:
-
-      P1: Tiger, Eel
-      P2: Rabbit, Crab
-      Pass: P1 Rooster
-
-      oo-oo
-      .....
-      ..O..
-      ...Xx
-      xx-x.
-
-    Here are the cards:
-
-      Tiger    Crab     Rabbit   Rooster  Eel
-        X
-                 X         X        X      X
-        O      X O X      O X     XOX       OX
-        X                X        X        X
-
-    X (P1) can use Eel to kill O's (P2) king and win.
-
-     */
     "P1 to win in one move" in {
+
+      // P1 can kill king with Eel.
       val g0 = new Onitama(
         Hand(Tiger, Eel),
         Hand(Rabbit, Crab),
         TurnP1(Rooster),
         new Board(
-          ArraySeq(
-            None, // Some(Piece(P2, Pawn)),
-            None, // Some(Piece(P2, Pawn)),
-            None,
-            None, // Some(Piece(P2, Pawn)),
-            None, // Some(Piece(P2, Pawn)),
-            None,
-            None,
-            None,
-            Some(Piece(P1, King)),
-            None,
-            None,
-            None,
-            Some(Piece(P2, King)),
-            None,
-            None,
-            None,
-            None,
-            None,
-            None,
-            None, // Some(Piece(P1, Pawn)),
-            None, // Some(Piece(P1, Pawn)),
-            None, // Some(Piece(P1, Pawn)),
-            None,
-            None, // Some(Piece(P1, Pawn)),
-            None
-          )
+          ArraySeq
+            .fill(25)(Option.empty[Piece])
+            .updated(Spot(3, 2).toIx, Some(Piece(P1, King)))
+            .updated(Spot(2, 3).toIx, Some(Piece(P2, King)))
         )
       )
 
@@ -78,12 +33,11 @@ class Scenario1Test extends TestBase {
       assertResult(P1)(g0.currentPlayer)
 
       assertResult(1)(g0.moves().toList.count { move =>
-//        println(Console.show(move).mkString("\n"))
-//        println(move.turnInHand)
-        move.turnInHand.card == Eel && move.gameOver == Some(Win(P1))
+        move.turnInHand.card == Eel && move.gameOver.contains(Win(P1))
       })
 
       def evaluate(game: Onitama, player: Player): Int = game.gameOver match {
+
         case Some(Draw) =>
           // Even if the player cannot move a piece the player must still exchange a card.
           sys.error("Draw disallowed.")
@@ -91,8 +45,7 @@ class Scenario1Test extends TestBase {
         case Some(Win(p)) =>
           if (p == player) Int.MaxValue else Int.MinValue
 
-        case None =>
-          0
+        case None => 0
       }
       // [2022-2-6] Works at depth 4, fails at depth 5!
       // also fails if there is at least one of either player's pawns.
@@ -106,7 +59,6 @@ class Scenario1Test extends TestBase {
           fail("Game is over.")
 
         case Right(eval) =>
-
           val gf = eval.game
 
           // P1 has won.

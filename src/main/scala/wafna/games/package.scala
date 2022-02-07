@@ -8,13 +8,13 @@ package object games {
     NonEmptyList(head, tail.toList)
 
   sealed trait Player {
-    def opponent: Player
+    val opponent: Player
   }
   case object P1 extends Player {
-    def opponent: Player = P2
+    val opponent: Player = P2
   }
   case object P2 extends Player {
-    def opponent: Player = P1
+    val opponent: Player = P1
   }
 
   sealed trait GameOver
