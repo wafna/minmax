@@ -19,15 +19,24 @@ case class Hand(c1: Card, c2: Card) {
   def toNel: NonEmptyList[Card] = nonEmptyList(c1, c2)
 }
 
-sealed trait Kind
-case object Pawn extends Kind
-case object King extends Kind
+sealed abstract class TurnInHand {
+  def card: Card
+  def player: Player
+  def choose[T](p1: T, p2: T): T = player match {
+    case P1 => p1
+    case P2 => p2
+  }
+}
+final case class TurnP1(card: Card) extends TurnInHand {
+  def player: Player = P1
+}
+final case class TurnP2(card: Card) extends TurnInHand {
+  def player: Player = P2
+}
 
-case class Piece(owner: Player, kind: Kind)
+class Onitama private[onitama] (val p1: Hand, val p2: Hand, val turnInHand: TurnInHand, val board: Board) {
 
-class Onitama private[onitama] (val p1: Hand, val p2: Hand, val pass: Either[Card, Card], val board: Board) {
-
-  val currentPlayer: Player = if (pass.isRight) P1 else P2
+  val currentPlayer: Player = turnInHand.player
 
   val gameOver: Option[GameOver] = board.gameOver
 
@@ -39,17 +48,14 @@ class Onitama private[onitama] (val p1: Hand, val p2: Hand, val pass: Either[Car
     }
 
     def moveP1(hand: Hand, passCard: Card, board: Board) =
-      new Onitama(hand, p2, Left(passCard), board)
+      new Onitama(hand, p2, TurnP2(passCard), board)
 
     def moveP2(hand: Hand, passCard: Card, board: Board) =
-      new Onitama(p1, hand, Right(passCard), board)
+      new Onitama(p1, hand, TurnP1(passCard), board)
 
-    def flipP1(move: Move): Move = move
-    def flipP2(move: Move): Move = move.flip
-
-    val (player, hand, passCard, mover, flip) = pass match {
-      case Right(c) => (P1, p1, c, moveP1 _, flipP1)
-      case Left(c)  => (P2, p2, c, moveP2 _, flipP2)
+    val (player, hand, passCard, mover, flip) = turnInHand match {
+      case TurnP1(c) => (P1, p1, c, moveP1 _, identity[Move])
+      case TurnP2(c)  => (P2, p2, c, moveP2 _, (move: Move) => move.flip)
     }
 
     val pieces = board.occupied(player)
@@ -83,8 +89,8 @@ class Onitama private[onitama] (val p1: Hand, val p2: Hand, val pass: Either[Car
 object Onitama {
 
   def apply()(implicit random: Random = Random): Onitama = Deck() match {
-    case (p1, p2, pass) => new Onitama(p1, p2, Right(pass), Board())
+    case (p1, p2, pass) => new Onitama(p1, p2, TurnP1(pass), Board())
   }
   def apply(hand1: Hand, hand2: Hand, pass: Card): Onitama =
-    new Onitama(hand1, hand2, Right(pass), Board())
+    new Onitama(hand1, hand2, TurnP1(pass), Board())
 }

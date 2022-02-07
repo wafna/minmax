@@ -101,7 +101,7 @@ object OnitamaMinMax {
     println(result)
     val g = games.head
     println(Console.show(g).mkString("\n"))
-    val cards: List[Card] = g.p1.toNel.toList ++ g.p2.toNel.toList ++ List(g.pass.getOrElse(g.pass.swap.toOption.get))
+    val cards: List[Card] = g.p1.toNel.toList ++ g.p2.toNel.toList ++ List(g.turnInHand.card)
     println("----------------------")
     println(
       cards

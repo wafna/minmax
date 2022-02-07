@@ -38,18 +38,18 @@ class Scenario1Test extends TestBase {
       val g0 = new Onitama(
         Hand(Tiger, Eel),
         Hand(Rabbit, Crab),
-        Right(Rooster),
+        TurnP1(Rooster),
         new Board(
           ArraySeq(
             None, // Some(Piece(P2, Pawn)),
-            Some(Piece(P2, Pawn)),
+            None, // Some(Piece(P2, Pawn)),
             None,
             None, // Some(Piece(P2, Pawn)),
             None, // Some(Piece(P2, Pawn)),
             None,
             None,
             None,
-            None,
+            Some(Piece(P1, King)),
             None,
             None,
             None,
@@ -59,9 +59,9 @@ class Scenario1Test extends TestBase {
             None,
             None,
             None,
-            Some(Piece(P1, King)),
+            None,
             None, // Some(Piece(P1, Pawn)),
-            Some(Piece(P1, Pawn)),
+            None, // Some(Piece(P1, Pawn)),
             None, // Some(Piece(P1, Pawn)),
             None,
             None, // Some(Piece(P1, Pawn)),
@@ -70,7 +70,18 @@ class Scenario1Test extends TestBase {
         )
       )
 
+      println(Console.show(g0).mkString("\n"))
+      g0.moves().toList.foreach { move =>
+        println(Console.show(move).mkString("\n"))
+      }
+
       assertResult(P1)(g0.currentPlayer)
+
+      assertResult(1)(g0.moves().toList.count { move =>
+//        println(Console.show(move).mkString("\n"))
+//        println(move.turnInHand)
+        move.turnInHand.card == Eel && move.gameOver == Some(Win(P1))
+      })
 
       def evaluate(game: Onitama, player: Player): Int = game.gameOver match {
         case Some(Draw) =>
@@ -85,6 +96,7 @@ class Scenario1Test extends TestBase {
       }
       // [2022-2-6] Works at depth 4, fails at depth 5!
       // also fails if there is at least one of either player's pawns.
+      // also it seems to matter where the pawns are.
       val result: Either[GameOver, MinMax.Eval[Onitama]] = {
         MinMax.search(g0, 5, evaluate)
       }
@@ -100,7 +112,7 @@ class Scenario1Test extends TestBase {
           // P1 has won.
           gf.gameOver shouldBe Some(Win(P1))
           // By using Eel to take P2's King.
-          gf.pass shouldBe Left(Eel)
+          gf.turnInHand.card shouldBe Eel
       }
     }
   }

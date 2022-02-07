@@ -56,12 +56,10 @@ object Console {
 
     def getLines(game: Onitama): List[String] =
       List(
-        "P1: " ++ game.p1.toNel.map(_.name).toList.mkString(", "),
-        "P2: " ++ game.p2.toNel.map(_.name).toList.mkString(", "),
-        "Pass: " ++ (game.pass match {
-          case Left(c) => s"P2 ${show(c).head}"
-          case Right(c) => s"P1 ${show(c).head}"
-        })
+        s"P1: ${game.p1.toNel.map(_.name).toList.mkString(", ")}",
+        s"P2: ${game.p2.toNel.map(_.name).toList.mkString(", ")}",
+        s"Turn: ${game.turnInHand.player} ${game.turnInHand.card}",
+        s"State: ${game.gameOver}"
       ) ++ show(game.board.spots)
   }
 

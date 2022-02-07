@@ -13,6 +13,12 @@ object Spot {
   def fromIx(ix: Int): Spot = Spot(ix % 5, ix / 5)
 }
 
+sealed trait Kind
+case object Pawn extends Kind
+case object King extends Kind
+
+case class Piece(owner: Player, kind: Kind)
+
 class Board private[onitama] (val spots: ArraySeq[Option[Piece]]) {
 
   require(25 == spots.length, s"Required 25 spots, got ${spots.length}")
