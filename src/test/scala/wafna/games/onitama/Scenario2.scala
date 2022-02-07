@@ -30,6 +30,8 @@ class Scenario2 extends ScenarioTestBase {
           .updated(Spot(3, 0).toIx, None)
           .updated(Spot(1, 4).toIx, None)
           .updated(Spot(3, 4).toIx, None)
+          // Here, we replace the pawn with the king.
+          // Keeping a piece here is necessary.
           .updated(Spot(2, 0).toIx, None)
           .updated(Spot(1, 0).toIx, Some(Piece(P1, King)))
       )
@@ -40,7 +42,7 @@ class Scenario2 extends ScenarioTestBase {
 
     assertResult(P2)(g0.currentPlayer)
 
-    implicit val listener: MinMax.ListenerCounter = MinMax.ListenerCounter("scenario-2")
+    implicit val listener: MinMax.ListenerCounter = new MinMax.ListenerCounter("scenario-2")
     
     MinMax.search(g0, 5, evaluate) match {
 
