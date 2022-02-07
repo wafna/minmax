@@ -1,6 +1,10 @@
 package wafna.games
 package onitama
 
+import wafna.games.minmax.MinMax
+import wafna.games.minmax.MinMax.{MeterSnapshot, TimerSnapshot}
+
+import java.text.NumberFormat
 import scala.collection.immutable.ArraySeq
 
 //noinspection ConvertExpressionToSAM
@@ -73,6 +77,19 @@ object Console {
         s"State: ${game.gameOver}"
       ) ++ show(game.board.spots)
   }
+
+  val numberFormat: NumberFormat = NumberFormat.getInstance()
+  def formatNumber(n: Long): String = numberFormat.format(n)
+  def showMeterSnapshot(snapshot: MeterSnapshot): String = {
+    f"${formatNumber(snapshot.count)} (${snapshot.meanRate}%.0f)"
+  }
+  def showTimerSnapshot(snapshot: TimerSnapshot): String =
+    f"${formatNumber(snapshot.count)} (${snapshot.average})"
+  def showStats(stats: MinMax.Stats): String =
+    s"""searches = ${showMeterSnapshot(stats.searches)}, evaluations = ${showTimerSnapshot(stats.evaluations)}
+       |  prunes = ${formatNumber(stats.prunes)}, wins = ${formatNumber(stats.evalWins)}, losses = ${formatNumber(
+      stats.evalLosses
+    )}""".stripMargin
 
   def allCards: String = show(Deck.cards.toList).mkString("\n")
 }

@@ -103,21 +103,8 @@ object OnitamaMinMax {
     println(Console.show(g).mkString("\n"))
     println("----------------------")
     println(Console.show(g.cards).mkString("\n"))
-    val numberFormat = NumberFormat.getInstance()
-    def formatNumber(n: Long): String = numberFormat.format(n)
-    def showMeterSnapshot(snapshot: MeterSnapshot): String = {
-      f"${formatNumber(snapshot.count)} (${snapshot.meanRate}%.0f)"
-    }
-    def showTimerSnapshot(snapshot: TimerSnapshot): String =
-      f"${formatNumber(snapshot.count)} (${snapshot.average})"
-    def showStats(stats: MinMax.Stats): String =
-      s"""searches = ${showMeterSnapshot(stats.searches)}, evaluations = ${showTimerSnapshot(stats.evaluations)}
-         |  prunes = ${formatNumber(stats.prunes)}, wins = ${formatNumber(stats.evalWins)}, losses = ${formatNumber(
-        stats.evalLosses
-      )}
-         |""".stripMargin
     println("----------------------")
-    println(s"P1: ${showStats(p1.getListener.stats())}")
-    println(s"P2: ${showStats(p2.getListener.stats())}")
+    println(s"P1: ${Console.showStats(p1.getListener.stats())}")
+    println(s"P2: ${Console.showStats(p2.getListener.stats())}")
   }
 }
