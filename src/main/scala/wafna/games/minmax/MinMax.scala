@@ -56,13 +56,7 @@ object MinMax {
       TimerSnapshot(timer.count, timer.mean, timer.meanRate)
   }
 
-  case class Stats(
-    searches: MeterSnapshot,
-    evaluations: TimerSnapshot,
-    prunes: Long,
-    evalWins: Long,
-    evalLosses: Long
-  )
+  case class Stats(searches: MeterSnapshot, evaluations: TimerSnapshot, prunes: Long, evalWins: Long, evalLosses: Long)
 
   class ListenerCounter(name: String) extends Listener with DefaultInstrumented {
     private val searches = metrics.meter(s"searches-$name")
@@ -85,13 +79,8 @@ object MinMax {
     }
     override def prune(): Unit = prunes.inc()
 
-    def stats(): Stats = Stats(
-      MeterSnapshot(searches),
-      TimerSnapshot(evaluations),
-      prunes.count,
-      evalWins.count,
-      evalLosses.count
-    )
+    def stats(): Stats =
+      Stats(MeterSnapshot(searches), TimerSnapshot(evaluations), prunes.count, evalWins.count, evalLosses.count)
   }
 
   /** A game plus its valuation relative to the searching player. */
@@ -119,10 +108,7 @@ object MinMax {
 
     /** Below the first layer of search we may have a pruning value which we use to abort unfruitful searches.
       */
-    def searchPruned(game: G, prune: Option[Int], depth: Int)(implicit
-      minMax: MinMax[G],
-      listener: Listener
-    ): Int = {
+    def searchPruned(game: G, prune: Option[Int], depth: Int)(implicit minMax: MinMax[G], listener: Listener): Int = {
 
       if (0 == depth) {
         listener.evaluate(evaluator(game, searchingPlayer))
@@ -156,16 +142,21 @@ object MinMax {
       }
     }
 
-    minMax
-      .moves(game)
-      .map {
-        _.foldLeft(Option.empty[Eval[G]]) { (best, move) =>
-          // prune with the current best value.
-          val eval = searchPruned(move, prune = best.map(_.eval), depth = maxDepth - 1)
-          // always maximizing at the top.
-          selectBest(1, best, Eval(move, eval))
-        }.getOrElse(MinMaxError(s"No moves!"))
-      }
+    def searchTop(moves: NonEmptyList[G]): Eval[G] = {
+      @tailrec def searchMoves(best: Option[Eval[G]], moves: List[G]): Option[Eval[G]] =
+        moves match {
+          case Nil =>
+            best
+          case head :: tail =>
+            // prune with the current best value.
+            val eval = searchPruned(head, prune = best.map(_.eval), depth = maxDepth - 1)
+            // always maximizing at the top.
+            val updatedBest = selectBest(1, best, Eval(head, eval))
+            searchMoves(updatedBest, tail)
+        }
+      searchMoves(Option.empty[Eval[G]], moves.toList).getOrElse(MinMaxError(s"No moves!"))
+    }
 
+    minMax.moves(game).map(searchTop)
   }
 }
