@@ -98,7 +98,7 @@ class MinMaxTest extends TestBase {
         }
       }
     }
-    "depth 2 something" in {
+    "depth 2 best move" in {
       bothWays.foreach { case (p1, p2) =>
         testSearch(2)(Right("2" -> 2)) {
           // format: off
@@ -117,6 +117,50 @@ class MinMaxTest extends TestBase {
             ))
           ))
           // format: on
+        }
+      }
+    }
+    "depth 2 early winner" in {
+      bothWays.foreach { case (p1, p2) =>
+        testSearch(2)(Right("1" -> 100)) {
+          // format: off
+          Game("0", p1, Moves(
+            Game("1", p2, Moves(Win(p1))),
+            Game("2", p2, Moves(
+              Game("2-2", p1, Evaluate(2)),
+              Game("2-3", p1, Evaluate(3))
+            )),
+            Game("3", p2, Moves(
+              Game("3-1", p1, Evaluate(-2)),
+              Game("3-2", p1, Moves(Draw))
+            ))
+          ))
+          // format: on
+        }
+      }
+    }
+    // The point here is to ensure that a path to a win deep in the tree doesn't mask
+    // an move to force a win.
+    "depth 2 other winner" in {
+      bothWays.foreach { case (p1, p2) =>
+        // format: off
+        val g1 = Game("1", p2, Moves(
+          Game("1-1", p1, Moves(
+            Game("1-1-1", p2, Moves(Win(p1)))
+          ))
+        ))
+        val g2 = Game("2", p2, Moves(
+          Game("2-1", p1, Moves(Draw)),
+          Game("2-2", p1, Moves(
+            Game("2-2-1", p2, Moves(Win(p1)))
+          ))
+        ))
+        // format: on
+        testSearch(3)(Right("1" -> 100)) {
+          Game("0", p1, Moves(g1, g2))
+        }
+        testSearch(3)(Right("1" -> 100)) {
+          Game("0", p1, Moves(g2, g1))
         }
       }
     }

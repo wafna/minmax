@@ -16,8 +16,8 @@ trait MinMax[G] {
     */
   def currentPlayer(game: G): Player
 
-  /** Return a non-empty list of moves from a game state
-    * or declare the game to be over.
+  /** Return a non-empty list of moves from a game state or declare the game to be over.
+    * Passes are modeled by having returned moves have the same moving player as the originating game.
     */
   def moves(game: G): Either[GameOver, NonEmptyList[G]]
 }
