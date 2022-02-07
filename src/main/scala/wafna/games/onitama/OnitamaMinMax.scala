@@ -101,16 +101,8 @@ object OnitamaMinMax {
     println(result)
     val g = games.head
     println(Console.show(g).mkString("\n"))
-    val cards: List[Card] = g.turnInHand.card :: g.p1.toNel.toList ++ g.p2.toNel.toList
     println("----------------------")
-    println(
-      cards
-        .map(Console.show)
-        .foldLeft(List.fill(6)("")) { (s, c) =>
-          s.zip(c).map(p => p._1 ++ "%1$-9s".format(p._2))
-        }
-        .mkString("\n")
-    )
+    println(Console.show(g.cards).mkString("\n"))
     val numberFormat = NumberFormat.getInstance()
     def formatNumber(n: Long): String = numberFormat.format(n)
     def showMeterSnapshot(snapshot: MeterSnapshot): String = {
@@ -120,7 +112,9 @@ object OnitamaMinMax {
       f"${formatNumber(snapshot.count)} (${snapshot.average})"
     def showStats(stats: MinMax.Stats): String =
       s"""searches = ${showMeterSnapshot(stats.searches)}, evaluations = ${showTimerSnapshot(stats.evaluations)}
-         |  prunes = ${formatNumber(stats.prunes)}, wins = ${formatNumber(stats.evalWins)}, losses = ${formatNumber(stats.evalLosses)}
+         |  prunes = ${formatNumber(stats.prunes)}, wins = ${formatNumber(stats.evalWins)}, losses = ${formatNumber(
+        stats.evalLosses
+      )}
          |""".stripMargin
     println("----------------------")
     println(s"P1: ${showStats(p1.getListener.stats())}")

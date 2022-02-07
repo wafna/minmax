@@ -25,6 +25,17 @@ object Console {
     }
   }
 
+  implicit val handPrinter: Printer[List[Card]] = new Printer[List[Card]] {
+
+    def getLines(cards: List[Card]): List[String] = {
+      cards
+        .map(Console.show)
+        .foldLeft(List.fill(6)("")) { (s, c) =>
+          s.zip(c).map(p => p._1 ++ "%1$-9s".format(p._2))
+        }
+    }
+  }
+
   implicit val boardPrinter: Printer[ArraySeq[Option[Piece]]] = new Printer[ArraySeq[Option[Piece]]] {
 
     //noinspection ScalaStyle
@@ -63,4 +74,5 @@ object Console {
       ) ++ show(game.board.spots)
   }
 
+  def allCards: String = show(Deck.cards.toList).mkString("\n")
 }

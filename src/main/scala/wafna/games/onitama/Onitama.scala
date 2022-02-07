@@ -39,6 +39,8 @@ class Onitama private[onitama] (val p1: Hand, val p2: Hand, val turnInHand: Turn
   val currentPlayer: Player = turnInHand.player
 
   val gameOver: Option[GameOver] = board.gameOver
+  
+  def cards: List[Card] = turnInHand.card :: p1.toNel.toList ++ p2.toNel.toList
 
   @throws[RuntimeException]("If the game is over, so don't ask.")
   def moves(): NonEmptyList[Onitama] = {
