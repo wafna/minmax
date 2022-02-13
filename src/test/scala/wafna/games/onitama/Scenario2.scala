@@ -42,7 +42,7 @@ class Scenario2 extends ScenarioTestBase {
 
     assertResult(P2)(g0.currentPlayer)
 
-    implicit val listener: MinMax.ListenerCounter = new MinMax.ListenerCounter("scenario-2")
+    implicit val listener: MinMax.ListenerCounter[Onitama] = new MinMax.ListenerCounter[Onitama]("scenario-2")
     
     MinMax.search(g0, 5, evaluate) match {
 

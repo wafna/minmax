@@ -24,8 +24,9 @@ object OnitamaMinMax {
     }
   }
 
-  abstract class OBot[L <: MinMax.Listener](depth: Int)(implicit listener: L = MinMax.ListenerNoOp)
-      extends Arena.SearchBot[Onitama, L](depth) {
+  abstract class OBot[L <: MinMax.Listener[Onitama]](depth: Int)(implicit
+    listener: L = new MinMax.ListenerNoOp[Onitama]
+  ) extends Arena.SearchBot[Onitama, L](depth) {
 
     def evaluateSafe(game: Onitama, player: Player): Int
 
@@ -42,17 +43,18 @@ object OnitamaMinMax {
     }
   }
 
-  class OBot0[L <: MinMax.Listener](depth: Int)(implicit listener: L = MinMax.ListenerNoOp) extends OBot[L](depth) {
+  class OBot0[L <: MinMax.Listener[Onitama]](depth: Int)(implicit listener: L = new MinMax.ListenerNoOp[Onitama])
+      extends OBot[L](depth) {
     override def evaluateSafe(game: Onitama, player: Player): Int = 0
   }
   object OBot0 {
-    def apply[L <: MinMax.Listener](depth: Int, listener: L = MinMax.ListenerNoOp): OBot0[L] = {
+    def apply[L <: MinMax.Listener[Onitama]](depth: Int, listener: L = new MinMax.ListenerNoOp[Onitama]): OBot0[L] = {
       implicit val q: L = listener
       new OBot0(depth)
     }
   }
 
-  class OBot1[L <: MinMax.Listener](depth: Int)(implicit listener: L = MinMax.ListenerNoOp) extends OBot[L](depth) {
+  class OBot1[L <: MinMax.Listener[Onitama]](depth: Int)(implicit listener: L = new MinMax.ListenerNoOp[Onitama]) extends OBot[L](depth) {
 
     //noinspection ScalaStyle
     override def evaluateSafe(game: Onitama, player: Player): Int = {
@@ -76,7 +78,7 @@ object OnitamaMinMax {
     }
   }
   object OBot1 {
-    def apply[L <: MinMax.Listener](depth: Int, listener: L = MinMax.ListenerNoOp): OBot1[L] = {
+    def apply[L <: MinMax.Listener[Onitama]](depth: Int, listener: L = new MinMax.ListenerNoOp[Onitama]): OBot1[L] = {
       implicit val q: L = listener
       new OBot1(depth)
     }

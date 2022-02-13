@@ -30,17 +30,17 @@ object MinMax {
     def apply(msg: String): Nothing = throw new MinMaxError(msg)
   }
 
-  trait Listener {
+  trait Listener[G] {
 
-    def search(depth: Int): Unit
-    def prune(): Unit
+    def search(searchingPlayer: Player, game: G, prune: Option[Int], depth: Int): Unit
+    def prune(mm: Int, prune: Int, eval: Int): Unit
     def evaluate(eval: => Int): Int = eval
   }
 
-  object ListenerNoOp extends Listener {
+  class ListenerNoOp[G] extends Listener[G] {
 
-    override def search(depth: Int): Unit = ()
-    override def prune(): Unit = ()
+    override def search(searchingPlayer: Player, game: G, prune: Option[Int], depth: Int): Unit = ()
+    override def prune(mm: Int, prune: Int, eval: Int): Unit = ()
     override def evaluate(eval: => Int): Int = eval
   }
 
@@ -58,14 +58,14 @@ object MinMax {
 
   case class Stats(searches: MeterSnapshot, evaluations: TimerSnapshot, prunes: Long, evalWins: Long, evalLosses: Long)
 
-  class ListenerCounter(name: String) extends Listener with DefaultInstrumented {
+  class ListenerCounter[G](name: String) extends Listener[G] with DefaultInstrumented {
     private val searches = metrics.meter(s"searches-$name")
     private val evaluations = metrics.timer(s"evaluations-$name")
     private val prunes = metrics.counter(s"prunes-$name")
     private val evalWins = metrics.counter(s"eval-wins-$name")
     private val evalLosses = metrics.counter(s"eval-losses-$name")
 
-    override def search(depth: Int): Unit = searches.mark()
+    override def search(searchingPlayer: Player, game: G, prune: Option[Int], depth: Int): Unit = searches.mark()
     override def evaluate(eval: => Int): Int = {
       val now = System.currentTimeMillis()
       val v = eval
@@ -77,7 +77,7 @@ object MinMax {
       evaluations.update(now - System.currentTimeMillis(), TimeUnit.MILLISECONDS)
       v
     }
-    override def prune(): Unit = prunes.inc()
+    override def prune(mm: Int, prune: Int, eval: Int): Unit = prunes.inc()
 
     def stats(): Stats =
       Stats(MeterSnapshot(searches), TimerSnapshot(evaluations), prunes.count, evalWins.count, evalLosses.count)
@@ -93,7 +93,7 @@ object MinMax {
   //noinspection ScalaStyle
   def search[G](game: G, maxDepth: Int, evaluator: Evaluator[G])(implicit
     minMax: MinMax[G],
-    listener: Listener = ListenerNoOp
+    listener: Listener[G] = new ListenerNoOp[G]
   ): Either[GameOver, Eval[G]] = {
     require(0 < maxDepth, "maxDepth must be positive.")
     // This player is the player initiating the search, throughout.
@@ -108,12 +108,12 @@ object MinMax {
 
     /** Below the first layer of search we may have a pruning value which we use to abort unfruitful searches.
       */
-    def searchPruned(game: G, prune: Option[Int], depth: Int)(implicit minMax: MinMax[G], listener: Listener): Int = {
+    def searchPruned(game: G, prune: Option[Int], depth: Int)(implicit minMax: MinMax[G], listener: Listener[G]): Int = {
 
       if (0 == depth) {
         listener.evaluate(evaluator(game, searchingPlayer))
       } else {
-        listener.search(maxDepth - depth)
+        listener.search(searchingPlayer, game, prune, maxDepth - depth)
         // This flips the sense of inequalities used in finding best moves and pruning searches.
         val mm = if (minMax.currentPlayer(game) == searchingPlayer) 1 else -1
 
@@ -125,7 +125,7 @@ object MinMax {
           case m :: ms =>
             val eval = searchPruned(m, prune = best.map(_.eval), depth = depth - 1)
             if (prune.exists(mm * _ < mm * eval)) {
-              listener.prune()
+              listener.prune(mm, prune.get, eval)
               eval
             } else {
               val b = selectBest(mm, best, Eval(m, eval))

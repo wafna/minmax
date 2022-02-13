@@ -28,9 +28,9 @@ object Arena {
     }
   }
 
-  abstract class SearchBot[G, L <: MinMax.Listener](depth: Int)(implicit
+  abstract class SearchBot[G, L <: MinMax.Listener[G]](depth: Int)(implicit
     minMax: MinMax[G],
-    listener: L = MinMax.ListenerNoOp
+    listener: L = new MinMax.ListenerNoOp[G]
   ) extends Bot[G] {
 
     override def show(): String = s"Search($depth)"
