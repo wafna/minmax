@@ -6,6 +6,7 @@ import com.codahale.metrics.Snapshot
 import wafna.games.minmax.*
 import wafna.games.minmax.Arena.*
 import wafna.games.minmax.MinMax.{Eval, MeterSnapshot, TimerSnapshot}
+import wafna.games.onitama.Console.*
 
 import java.text.NumberFormat
 import scala.util.Random
@@ -54,7 +55,8 @@ object OnitamaMinMax {
     }
   }
 
-  class OBot1[L <: MinMax.Listener[Onitama]](depth: Int)(implicit listener: L = new MinMax.ListenerNoOp[Onitama]) extends OBot[L](depth) {
+  class OBot1[L <: MinMax.Listener[Onitama]](depth: Int)(implicit listener: L = new MinMax.ListenerNoOp[Onitama])
+      extends OBot[L](depth) {
 
     //noinspection ScalaStyle
     override def evaluateSafe(game: Onitama, player: Player): Int = {
@@ -95,16 +97,16 @@ object OnitamaMinMax {
       override def move(games: List[Onitama]): Unit = {
         println("----------------------")
         println(s"--- Turn ${games.size}")
-        println(Console.show(games.head).mkString("\n"))
+        println(games.head.show.block)
       }
     }
     val (result, games): (GameOver, List[Onitama]) = Arena.runGame(Onitama(), p1, p2)
     println("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
     println(result)
     val g = games.head
-    println(Console.show(g).mkString("\n"))
+    println(g.show.block)
     println("----------------------")
-    println(Console.show(g.cards).mkString("\n"))
+    println(g.cards.show.block)
     println("----------------------")
     println(s"P1: ${Console.showStats(p1.getListener.stats())}")
     println(s"P2: ${Console.showStats(p2.getListener.stats())}")

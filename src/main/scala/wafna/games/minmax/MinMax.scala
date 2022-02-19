@@ -34,14 +34,14 @@ object MinMax {
 
     def search(searchingPlayer: Player, game: G, prune: Option[Int], depth: Int): Unit
     def prune(mm: Int, prune: Int, eval: Int): Unit
-    def evaluate(eval: => Int): Int = eval
+    def evaluate(game: G, depth: Int)(eval: => Int): Int = eval
   }
 
   class ListenerNoOp[G] extends Listener[G] {
 
     override def search(searchingPlayer: Player, game: G, prune: Option[Int], depth: Int): Unit = ()
     override def prune(mm: Int, prune: Int, eval: Int): Unit = ()
-    override def evaluate(eval: => Int): Int = eval
+    override def evaluate(game: G, depth: Int)(eval: => Int): Int = eval
   }
 
   case class MeterSnapshot(count: Long, meanRate: Double)
@@ -66,7 +66,7 @@ object MinMax {
     private val evalLosses = metrics.counter(s"eval-losses-$name")
 
     override def search(searchingPlayer: Player, game: G, prune: Option[Int], depth: Int): Unit = searches.mark()
-    override def evaluate(eval: => Int): Int = {
+    override def evaluate(game: G, depth: Int)(eval: => Int): Int = {
       val now = System.currentTimeMillis()
       val v = eval
       if (v == Int.MinValue) {
@@ -111,7 +111,7 @@ object MinMax {
     def searchPruned(game: G, prune: Option[Int], depth: Int)(implicit minMax: MinMax[G], listener: Listener[G]): Int = {
 
       if (0 == depth) {
-        listener.evaluate(evaluator(game, searchingPlayer))
+        listener.evaluate(game, maxDepth - depth)(evaluator(game, searchingPlayer))
       } else {
         listener.search(searchingPlayer, game, prune, maxDepth - depth)
         // This flips the sense of inequalities used in finding best moves and pruning searches.
@@ -137,7 +137,7 @@ object MinMax {
           case Right(moves) =>
             searchMoves(moves.toList, None)
           case Left(gameOver) =>
-            listener.evaluate(evaluator(game, searchingPlayer))
+            listener.evaluate(game, maxDepth - depth)(evaluator(game, searchingPlayer))
         }
       }
     }

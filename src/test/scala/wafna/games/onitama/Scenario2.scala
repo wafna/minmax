@@ -3,6 +3,7 @@ package games
 package onitama
 
 import wafna.games.minmax.MinMax
+import wafna.games.onitama.Console.*
 import wafna.games.onitama.Deck.*
 import wafna.games.onitama.OnitamaMinMax.*
 
@@ -37,13 +38,18 @@ class Scenario2 extends ScenarioTestBase {
       )
     )
 
-    println(Console.show(g0.cards).mkString("\n"))
-    println(Console.show(g0).mkString("\n"))
+    println(g0.cards.show.block)
+    println(g0.show.block)
 
     assertResult(P2)(g0.currentPlayer)
 
-    implicit val listener: MinMax.ListenerCounter[Onitama] = new MinMax.ListenerCounter[Onitama]("scenario-2")
-    
+    implicit val listener: MinMax.Listener[Onitama] = new MinMax.Listener[Onitama] {
+
+      override def search(searchingPlayer: Player, game: Onitama, prune: Option[Int], depth: Int): Unit = {}
+      override def prune(mm: Int, prune: Int, eval: Int): Unit = {}
+      override def evaluate(game: Onitama, depth: Int)(eval: => Int): Int = eval
+    }
+
     MinMax.search(g0, 5, evaluate) match {
 
       case Left(_) =>
@@ -52,9 +58,8 @@ class Scenario2 extends ScenarioTestBase {
       case Right(eval) =>
         val gf = eval.game
         println()
-        println(Console.show(gf).mkString("\n"))
+        println(gf.show.block)
         println()
-        println(Console.showStats(listener.stats()))
 
         assertResult(P1)(gf.currentPlayer)
 
