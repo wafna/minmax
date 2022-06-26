@@ -1,6 +1,6 @@
 cabal-version:      2.4
 
-name              : Oxyllogism
+name              : MinMax
 version           : 0.3.0.0
 synopsis          : Fun with formal logic.
 description       : A DSL for formulating, deriving, and evaluating logical expressions.
@@ -16,7 +16,7 @@ extra-source-files: CHANGELOG.md
 executable          sandbox
     hs-source-dirs  : src/main, src/sandbox
     main-is         : Sandbox.hs
-    other-modules   : Minmax
+    other-modules   : MinMax
     other-extensions: UnicodeSyntax
     ghc-options     : -Wall
     default-language: Haskell2010
@@ -28,7 +28,7 @@ test-suite          test
     type            : exitcode-stdio-1.0
     hs-source-dirs  : src/main, src/test
     main-is         : Test.hs
-    other-modules   : Minmax
+    other-modules   : MinMax
     ghc-options     : -Wall
     default-language: Haskell2010
     build-depends   : base ^>= 4.14.3.0,
