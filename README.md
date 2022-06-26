@@ -1,0 +1,1 @@
+Min-Max adversarial search in various languages.
